@@ -1,4 +1,4 @@
-package io.warp10.plugins.macaroons;
+package com.clevercloud.warp10.plugins.macaroons;
 //
 //   Copyright 2018  Clever Cloud
 //
@@ -17,12 +17,14 @@ package io.warp10.plugins.macaroons;
 
 import java.util.Properties;
 
-//import io.warp10.continuum.AuthenticationPlugin;
-//import io.warp10.continuum.Tokens;
+import io.warp10.continuum.AuthenticationPlugin;
+import io.warp10.continuum.Tokens;
 import io.warp10.quasar.token.thrift.data.ReadToken;
 import io.warp10.quasar.token.thrift.data.WriteToken;
 import io.warp10.script.WarpScriptException;
-//import io.warp10.warp.sdk.AbstractWarp10Plugin;
+import io.warp10.warp.sdk.AbstractWarp10Plugin;
+import com.github.nitram509.jmacaroons.Macaroon;
+import com.github.nitram509.jmacaroons.MacaroonsBuilder;
 
 
 /**
@@ -34,8 +36,8 @@ import io.warp10.script.WarpScriptException;
  * warp10.plugin.authexample = io.warp10.plugins.authexample.AuthExampleWarp10Plugin
  * 
  */
-//public class MacaroonsPlugin extends AbstractWarp10Plugin implements AuthenticationPlugin {
-public class MacaroonsPlugin {
+public class MacaroonsPlugin extends AbstractWarp10Plugin implements AuthenticationPlugin {
+//public class MacaroonsPlugin {
   private static final String PREFIX = "macaroon:";
   
   //@Override
