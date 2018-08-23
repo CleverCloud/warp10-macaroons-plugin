@@ -36,7 +36,7 @@ import io.warp10.script.WarpScriptException;
  */
 //public class MacaroonsPlugin extends AbstractWarp10Plugin implements AuthenticationPlugin {
 public class MacaroonsPlugin {
-  private static final String PREFIX = "dummy:";
+  private static final String PREFIX = "macaroon:";
   
   //@Override
   public ReadToken extractReadToken(String token) throws WarpScriptException {
@@ -45,6 +45,9 @@ public class MacaroonsPlugin {
     }
 
     ReadToken rtoken = new ReadToken();
+
+    Macaroon macaroon = MacaroonsBuilder.deserialize(token);
+    System.out.println(macaroon.inspect());
     
     // .... populate the ReadToken
     
