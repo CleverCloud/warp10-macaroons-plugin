@@ -15,9 +15,7 @@ package com.clevercloud.warp10.plugins.macaroons;
 //   limitations under the License.
 //
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import com.github.nitram509.jmacaroons.CaveatPacket;
 import com.github.nitram509.jmacaroons.MacaroonsVerifier;
@@ -56,6 +54,7 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
 
 
+
   //@Override
   public ReadToken extractReadToken(String token) throws WarpScriptException {
     System.out.println("read");
@@ -68,20 +67,22 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     System.out.println(token);
     Macaroon macaroon = MacaroonsBuilder.deserialize(token.substring(PREFIX.length()));
 
-
     MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon)
             .satisfyGeneral(new TimestampCaveatVerifier());
     boolean valid = verifier.isValid(secretKey);
 
 
     System.out.println("😇😇😇  valid: " + valid + "\n" + macaroon.inspect());
-
+/*
     if(!verifier.isValid(secretKey)){
       return null;
     }
-
+*/
 
     List<CaveatPacket> caveats = Arrays.asList(macaroon.caveatPackets);
+
+
+    Map<String,String> labels = new HashMap<>();
 
     for (CaveatPacket caveat : caveats) {
       System.out.println("-> " + caveat.getValueAsText());
@@ -89,7 +90,19 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
       if(caveat.getValueAsText().startsWith("time < ")){
         rtoken.setExpiryTimestamp((new DateTime(caveat.getValueAsText().substring("time < ".length()))).getMillis());
       }
+      if(caveat.getValueAsText().startsWith("label=")){
+        String line = caveat.getValueAsText().substring("label=".length());
+        int whereIsEqual = line.indexOf("=");
+        labels.put(line.substring(0,whereIsEqual),line.substring(whereIsEqual+1));
+      }
+
     }
+
+    rtoken.setLabels(labels);
+    System.out.println(labels.keySet());
+    System.out.println(labels.values());
+
+    System.out.println("😱 => " + labels.toString());
 
     if(!rtoken.isSetExpiryTimestamp()){
       rtoken.setExpiryTimestamp(((new DateTime()).plus(Duration.standardHours(2))).getMillis());
@@ -101,6 +114,9 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
   
   //@Override
   public WriteToken extractWriteToken(String token) throws WarpScriptException {
+
+    extractReadToken(token);
+
     System.out.println("write");
     System.out.println(token);
     if (!token.startsWith(PREFIX)) {
@@ -123,7 +139,10 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     String location = "http://localhost:8080/";
     String identifier = "we used our secret key";
     Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
-            .add_first_party_caveat("time < 2015-01-01T00:00")
+            .add_first_party_caveat("time < 2019-01-01T00:00")
+            .add_first_party_caveat("label=host=127.0.0.1")
+            .add_first_party_caveat("label=name=john")
+            .add_first_party_caveat("label=surname=doe")
             .getMacaroon();
     String serialized = macaroon.serialize();
     System.out.println("Serialized: " + serialized);
