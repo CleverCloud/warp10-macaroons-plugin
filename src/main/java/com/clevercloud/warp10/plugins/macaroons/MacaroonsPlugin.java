@@ -65,7 +65,7 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     ReadToken rtoken = new ReadToken();
 
     System.out.println(token);
-    Macaroon macaroon = MacaroonsBuilder.deserialize(token.substring(PREFIX.length()));
+    Macaroon macaroon = MacaroonsBuilder.deserialize(token.substring(PREFIX.length()).trim());
 
     MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon)
             .satisfyGeneral(new TimestampCaveatVerifier());
