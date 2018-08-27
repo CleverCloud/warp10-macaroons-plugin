@@ -119,11 +119,10 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     rtoken.setAttributes(common.attributes);
     rtoken.setMaxFetchSize((Long) verifier.getExtractorForPrefix("max_fetch_size = ").getData());
 
-// TODO check if we really need to expirate it
     if(common.timestamp != null){
       rtoken.setExpiryTimestamp(common.timestamp);
     }else{
-      rtoken.setExpiryTimestamp(((new DateTime()).plus(Duration.standardHours(2))).getMillis());
+      rtoken.setExpiryTimestamp(((new DateTime()).plus(Duration.standardDays(360))).getMillis());
     }
     // .... populate the ReadToken
 
@@ -161,11 +160,10 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     wtoken.setLabels(common.labels);
     wtoken.setAttributes(common.attributes);
 
-// TODO check if we really need to expirate it
     if(common.timestamp != null){
       wtoken.setExpiryTimestamp(common.timestamp);
     }else{
-      wtoken.setExpiryTimestamp(((new DateTime()).plus(Duration.standardHours(2))).getMillis());
+      wtoken.setExpiryTimestamp(((new DateTime()).plus(Duration.standardDays(360))).getMillis());
     }
 
     // .... populate the WriteToken
