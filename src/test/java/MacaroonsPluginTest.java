@@ -133,7 +133,6 @@ public class MacaroonsPluginTest {
             Macaroon mgroovytrue = new MacaroonsBuilder(macaroon2)
                     .add_first_party_caveat("groovy = true")
                     .getMacaroon();
-
             ReadToken readTokengroovy = mp.extractReadToken(mp.getPrefix() + mgroovytrue.serialize());
             assertTrue("Groovy is valid", readTokengroovy.isGroovy());
 
@@ -141,7 +140,6 @@ public class MacaroonsPluginTest {
             Macaroon mgroovyfalse = new MacaroonsBuilder(mgroovytrue)
                     .add_first_party_caveat("groovy = false")
                     .getMacaroon();
-
             ReadToken rtgroovyfalse = mp.extractReadToken(mp.getPrefix() + mgroovyfalse.serialize());
             assertTrue("Groovy is false now", !rtgroovyfalse.isGroovy());
 
@@ -149,7 +147,6 @@ public class MacaroonsPluginTest {
             Macaroon mgroovyfalse2 = new MacaroonsBuilder(mgroovyfalse)
                     .add_first_party_caveat("groovy = true")
                     .getMacaroon();
-
             ReadToken rtgroovyfalse2 = mp.extractReadToken(mp.getPrefix() + mgroovyfalse2.serialize());
             assertTrue("Groovy is still false", !rtgroovyfalse2.isGroovy());
 
