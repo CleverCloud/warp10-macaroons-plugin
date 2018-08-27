@@ -150,6 +150,12 @@ public class MacaroonsPluginTest {
             ReadToken rtgroovyfalse2 = mp.extractReadToken(mp.getPrefix() + mgroovyfalse2.serialize());
             assertTrue("Groovy is still false", !rtgroovyfalse2.isGroovy());
 
+            Macaroon munvalid = new MacaroonsBuilder(macaroon)
+                    .add_first_party_caveat("access = WRITE")
+                    .getMacaroon();
+            ReadToken rtunvalid = mp.extractReadToken(mp.getPrefix() + munvalid.serialize());
+            assertTrue("Write token will return null", rtunvalid == null);
+
         } catch (WarpScriptException e) {
             e.printStackTrace();
         }
