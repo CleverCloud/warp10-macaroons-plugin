@@ -78,10 +78,14 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
   }
 
   private CommonMacaroonInfos extractCommonInfosFromMacaroon(Macaroon macaroon, MacarronsVerifierExtractor mve){
+    CaveatDataExtractor<Date> timeExtractor = mve.getExtractorForPrefix("time < ");
+    CaveatDataExtractor<Map<String, String>> labelExtractor = mve.getExtractorForPrefix("label = ");
+    CaveatDataExtractor<Map<String, String>> attributesExtractor = mve.getExtractorForPrefix("attr = ");
+
     return new CommonMacaroonInfos(
-            ((Date) mve.getExtractorForPrefix("time < ").getData()).toInstant().toEpochMilli(),
-            (Map<String, String>) mve.getExtractorForPrefix("label = ").getData(),
-            (Map<String, String>)mve.getExtractorForPrefix("attr = ").getData()
+            (timeExtractor.getData() != null ? timeExtractor.getData().toInstant().toEpochMilli() : null),
+            labelExtractor.getData() != null ? labelExtractor.getData() : new HashMap<>(),
+            attributesExtractor.getData() != null ? attributesExtractor.getData() : new HashMap<>()
     );
   }
 
@@ -109,8 +113,10 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
     rtoken.setLabels(common.labels);
     rtoken.setAttributes(common.attributes);
-    rtoken.setMaxFetchSize((Long) verifier.getExtractorForPrefix("max_fetch_size = ").getData());
-
+    CaveatDataExtractor<Long> maxFetchSizeExtractor = verifier.getExtractorForPrefix("max_fetch_size = ");
+    if(maxFetchSizeExtractor.getData() != null) {
+      rtoken.setMaxFetchSize(maxFetchSizeExtractor.getData());
+    }
     if(common.timestamp != null){
       rtoken.setExpiryTimestamp(common.timestamp);
     }else{
