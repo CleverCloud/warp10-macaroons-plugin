@@ -156,6 +156,13 @@ public class MacaroonsPluginTest {
             ReadToken rtunvalid = mp.extractReadToken(mp.getPrefix() + munvalid.serialize());
             assertTrue("Write token will return null", rtunvalid == null);
 
+
+            Macaroon mlookuptrue = new MacaroonsBuilder(macaroon2)
+                    .add_first_party_caveat("lookup = true")
+                    .getMacaroon();
+            ReadToken readTokenlookup = mp.extractReadToken(mp.getPrefix() + mlookuptrue.serialize());
+            assertTrue("Lookup is valid", readTokenlookup.isLookup());
+
         } catch (WarpScriptException e) {
             e.printStackTrace();
         }
