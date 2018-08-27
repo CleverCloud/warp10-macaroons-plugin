@@ -78,7 +78,6 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
   }
 
   private CommonMacaroonInfos extractCommonInfosFromMacaroon(Macaroon macaroon, MacarronsVerifierExtractor mve){
-    System.out.println(mve);
     return new CommonMacaroonInfos(
             ((Date) mve.getExtractorForPrefix("time < ").getData()).toInstant().toEpochMilli(),
             (Map<String, String>) mve.getExtractorForPrefix("label = ").getData(),
@@ -88,7 +87,6 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
   //@Override
   public ReadToken extractReadToken(String token) throws WarpScriptException {
-    System.out.println("read");
     if (!token.startsWith(PREFIX)) {
       return null;
     }
@@ -101,19 +99,14 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
     boolean valid = verifier.isValid(secretKey);
 
-    System.out.println("😇😇😇  valid: " + valid + "\n" + macaroon.inspect());
-    System.out.println("😇😇😇");
-
     if(!verifier.isValid(secretKey)){
       return null;
     }
-
 
     ReadToken rtoken = new ReadToken();
 
     CommonMacaroonInfos common = extractCommonInfosFromMacaroon(macaroon,verifier );
 
-    System.out.println(common);
     rtoken.setLabels(common.labels);
     rtoken.setAttributes(common.attributes);
     rtoken.setMaxFetchSize((Long) verifier.getExtractorForPrefix("max_fetch_size = ").getData());
@@ -123,17 +116,12 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     }else{
       rtoken.setExpiryTimestamp(((new DateTime()).plus(Duration.standardDays(360))).getMillis());
     }
-    // .... populate the ReadToken
-
-    System.out.println(rtoken.getLabels() + " \n" + rtoken.getAttributes());
-    System.out.println(rtoken.toString());
 
     return rtoken;
   }
   
   //@Override
   public WriteToken extractWriteToken(String token) throws WarpScriptException {
-    System.out.println("write");
     if (!token.startsWith(PREFIX)) {
       return null;
     }
@@ -144,13 +132,9 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
     boolean valid = verifier.isValid(secretKey);
 
-
-    System.out.println("WRITE 😇😇😇  valid: " + valid + "\n" + macaroon.inspect());
-    System.out.println("WRITE 😇😇😇");
     if(!verifier.isValid(secretKey)){
       return null;
     }
-
 
     WriteToken wtoken = new WriteToken();
 
@@ -165,8 +149,6 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
       wtoken.setExpiryTimestamp(((new DateTime()).plus(Duration.standardDays(360))).getMillis());
     }
 
-    // .... populate the WriteToken
-    
     return wtoken;
   }
   
