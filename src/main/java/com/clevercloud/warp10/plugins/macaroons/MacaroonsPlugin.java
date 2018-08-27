@@ -129,11 +129,11 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
     System.out.println("😇😇😇  valid: " + valid + "\n" + macaroon.inspect());
     System.out.println("😇😇😇");
-/* // TODO is valid must be activated
+
     if(!verifier.isValid(secretKey)){
       return null;
     }
-*/
+
 
     ReadToken rtoken = new ReadToken();
 
@@ -172,11 +172,10 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
     System.out.println("WRITE 😇😇😇  valid: " + valid + "\n" + macaroon.inspect());
     System.out.println("WRITE 😇😇😇");
-/* // TODO is valid must be activated
     if(!verifier.isValid(secretKey)){
       return null;
     }
-*/
+
 
     WriteToken wtoken = new WriteToken();
 
@@ -201,34 +200,6 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
   public void init(Properties properties) {
     LOG.info("Registering Macaroon authentication plugin");
     Tokens.register(this);
-
-    String location = "http://localhost:8080/";
-    String identifier = "we used our secret key";
-    Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
-            .add_first_party_caveat("time < 2019-01-01T00:00")
-            .add_first_party_caveat("label = host=127.0.0.1")
-            .add_first_party_caveat("label = name=john")
-            .add_first_party_caveat("label = surname=doe")
-            .add_first_party_caveat("attr = role=CEO")
-            .add_first_party_caveat("access = READ, WRITE")
-            .getMacaroon();
-    String serialized = macaroon.serialize();
-    System.out.println("🎂 Serialized: " + serialized);
-
-    Macaroon macaroon_1 = MacaroonsBuilder.deserialize(serialized);
-    String identifier2 = "we used our secret key";
-
-    Macaroon macaroon2 = new MacaroonsBuilder(macaroon_1)
-            .add_first_party_caveat("access = READ")
-            .add_first_party_caveat("label = surname=grosdada")
-
-            .getMacaroon();
-    String serialized2 = macaroon2.serialize();
-    System.out.println("🍰 Serialized: " + serialized2);
-
-    System.out.println("'macaroon: "+serialized+"' TOKENINFO");
-    System.out.println("'macaroon: "+serialized2+"' TOKENINFO");
-
   }
 
 
