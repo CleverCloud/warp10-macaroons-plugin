@@ -36,10 +36,8 @@ public class MacaroonsPluginTest {
                 .add_first_party_caveat("plop = GLO, GLOU, PRO, ADD")
                 .getMacaroon();
         String serialized = macaroon.serialize();
-        System.out.println("🎂 Serialized: " + serialized);
 
         Macaroon macaroon_1 = MacaroonsBuilder.deserialize(serialized);
-        String identifier2 = "we used our secret key";
 
         Macaroon macaroon2 = new MacaroonsBuilder(macaroon_1)
                 .add_first_party_caveat("access = READ, GLO")
@@ -50,10 +48,6 @@ public class MacaroonsPluginTest {
 
                 .getMacaroon();
         String serialized2 = macaroon2.serialize();
-        System.out.println("🍰 Serialized: " + serialized2);
-
-        System.out.println("'macaroon: "+serialized+"' TOKENINFO");
-        System.out.println("'macaroon: "+serialized2+"' TOKENINFO");
 
         Macaroon macaroon_d = MacaroonsBuilder.deserialize(serialized2);
 
@@ -94,7 +88,7 @@ public class MacaroonsPluginTest {
                 .add_first_party_caveat("access = READ, WRITE")
                 .getMacaroon();
         String serialized = macaroon.serialize();
-        System.out.println("🎂 Serialized: " + serialized);
+   //     System.out.println("🎂 Serialized: " + serialized);
 
         Macaroon macaroon_1 = MacaroonsBuilder.deserialize(serialized);
         String identifier2 = "we used our secret key";
@@ -107,10 +101,10 @@ public class MacaroonsPluginTest {
 
                 .getMacaroon();
         String serialized2 = macaroon2.serialize();
-        System.out.println("🍰 Serialized: " + serialized2);
+ //       System.out.println("🍰 Serialized: " + serialized2);
 
-        System.out.println("'macaroon: "+serialized+"' TOKENINFO");
-        System.out.println("'macaroon: "+serialized2+"' TOKENINFO");
+    //    System.out.println("'macaroon: "+serialized+"' TOKENINFO");
+    //    System.out.println("'macaroon: "+serialized2+"' TOKENINFO");
 
 
         System.out.println("--");
@@ -136,10 +130,33 @@ public class MacaroonsPluginTest {
             Boolean battr = tkattr.equals(needed_attr);
             assertTrue("Attributes are the good ones", battr);
 
+            Macaroon mgroovytrue = new MacaroonsBuilder(macaroon2)
+                    .add_first_party_caveat("groovy = true")
+                    .getMacaroon();
+
+            ReadToken readTokengroovy = mp.extractReadToken(mp.getPrefix() + mgroovytrue.serialize());
+            assertTrue("Groovy is valid", readTokengroovy.isGroovy());
+
+
+            Macaroon mgroovyfalse = new MacaroonsBuilder(mgroovytrue)
+                    .add_first_party_caveat("groovy = false")
+                    .getMacaroon();
+
+            ReadToken rtgroovyfalse = mp.extractReadToken(mp.getPrefix() + mgroovyfalse.serialize());
+            assertTrue("Groovy is false now", !rtgroovyfalse.isGroovy());
+
+
+            Macaroon mgroovyfalse2 = new MacaroonsBuilder(mgroovyfalse)
+                    .add_first_party_caveat("groovy = true")
+                    .getMacaroon();
+
+            ReadToken rtgroovyfalse2 = mp.extractReadToken(mp.getPrefix() + mgroovyfalse2.serialize());
+            assertTrue("Groovy is still false", !rtgroovyfalse2.isGroovy());
 
         } catch (WarpScriptException e) {
             e.printStackTrace();
         }
+
 
 
         // TODO, find a way to run tests in a more clean way

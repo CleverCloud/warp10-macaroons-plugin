@@ -17,10 +17,7 @@ package com.clevercloud.warp10.plugins.macaroons;
 
 import java.util.*;
 
-import com.clevercloud.warp10.plugins.macaroons.verifiers.AccessCaveatVerifierExtractor;
-import com.clevercloud.warp10.plugins.macaroons.verifiers.MapCaveatVerifierExtractor;
-import com.clevercloud.warp10.plugins.macaroons.verifiers.MaxLongCaveatVerifierExtractor;
-import com.clevercloud.warp10.plugins.macaroons.verifiers.TimestampCaveatVerifierExtractor;
+import com.clevercloud.warp10.plugins.macaroons.verifiers.*;
 import io.warp10.continuum.AuthenticationPlugin;
 import io.warp10.continuum.Tokens;
 import io.warp10.quasar.token.thrift.data.ReadToken;
@@ -99,7 +96,8 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
     MacarronsVerifierExtractor verifier = getCommonVerifierForMacaroon(macaroon)
             .satisfyGeneralAndExtract(new AccessCaveatVerifierExtractor("READ"))
-            .satisfyGeneralAndExtract(new MaxLongCaveatVerifierExtractor("max_fetch_size = "));
+            .satisfyGeneralAndExtract(new MaxLongCaveatVerifierExtractor("max_fetch_size = "))
+            .satisfyGeneralAndExtract(new BooleanCaveatVerifierExtractor("groovy = "));
 
     boolean valid = verifier.isValid(secretKey);
 
@@ -113,10 +111,17 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
     rtoken.setLabels(common.labels);
     rtoken.setAttributes(common.attributes);
+
+    CaveatDataExtractor<Boolean> groovyExtractor = verifier.getExtractorForPrefix("groovy = ");
+    if(groovyExtractor.getData() != null) {
+      rtoken.setGroovy(groovyExtractor.getData());
+    }
+
     CaveatDataExtractor<Long> maxFetchSizeExtractor = verifier.getExtractorForPrefix("max_fetch_size = ");
     if(maxFetchSizeExtractor.getData() != null) {
       rtoken.setMaxFetchSize(maxFetchSizeExtractor.getData());
     }
+
     if(common.timestamp != null){
       rtoken.setExpiryTimestamp(common.timestamp);
     }else{
