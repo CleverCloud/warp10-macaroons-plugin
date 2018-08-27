@@ -19,6 +19,7 @@ import java.util.*;
 
 import com.clevercloud.warp10.plugins.macaroons.verifiers.AccessCaveatVerifierExtractor;
 import com.clevercloud.warp10.plugins.macaroons.verifiers.MapCaveatVerifierExtractor;
+import com.clevercloud.warp10.plugins.macaroons.verifiers.MaxLongCaveatVerifierExtractor;
 import com.clevercloud.warp10.plugins.macaroons.verifiers.TimestampCaveatVerifierExtractor;
 import io.warp10.continuum.AuthenticationPlugin;
 import io.warp10.continuum.Tokens;
@@ -96,7 +97,8 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     Macaroon macaroon = getMacaroonFromToken(token);
 
     MacarronsVerifierExtractor verifier = getCommonVerifierForMacaroon(macaroon)
-            .satisfyGeneralAndExtract(new AccessCaveatVerifierExtractor("READ"));
+            .satisfyGeneralAndExtract(new AccessCaveatVerifierExtractor("READ"))
+            .satisfyGeneralAndExtract(new MaxLongCaveatVerifierExtractor("max_fetch_size = "));
 
     boolean valid = verifier.isValid(secretKey);
 
@@ -115,6 +117,7 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     System.out.println(common);
     rtoken.setLabels(common.labels);
     rtoken.setAttributes(common.attributes);
+    rtoken.setMaxFetchSize((Long) verifier.getExtractorForPrefix("max_fetch_size = ").getData());
 
 // TODO check if we really need to expirate it
     if(common.timestamp != null){
