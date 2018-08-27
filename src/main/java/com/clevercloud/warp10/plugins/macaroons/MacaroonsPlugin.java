@@ -121,8 +121,6 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
     Macaroon macaroon = getMacaroonFromToken(token);
 
-
-
     MacaroonsVerifier verifier = getCommonVerifierForMacaroon(macaroon)
             .satisfyGeneral(new AccessCaveatVerifier("READ"));
 
@@ -160,18 +158,40 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
   
   //@Override
   public WriteToken extractWriteToken(String token) throws WarpScriptException {
-
-    extractReadToken(token);
-
     System.out.println("write");
-    System.out.println(token);
     if (!token.startsWith(PREFIX)) {
       return null;
     }
-    System.out.println(token);
+    Macaroon macaroon = getMacaroonFromToken(token);
+
+    MacaroonsVerifier verifier = getCommonVerifierForMacaroon(macaroon)
+            .satisfyGeneral(new AccessCaveatVerifier("WRITE"));
+
+    boolean valid = verifier.isValid(secretKey);
+
+
+    System.out.println("WRITE 😇😇😇  valid: " + valid + "\n" + macaroon.inspect());
+    System.out.println("WRITE 😇😇😇");
+/* // TODO is valid must be activated
+    if(!verifier.isValid(secretKey)){
+      return null;
+    }
+*/
 
     WriteToken wtoken = new WriteToken();
-    
+
+    CommonMacaroonInfos common = extractCommonInfosFromMacaroon(macaroon);
+
+    wtoken.setLabels(common.labels);
+    wtoken.setAttributes(common.attributes);
+
+// TODO check if we really need to expirate it
+    if(common.timestamp != null){
+      wtoken.setExpiryTimestamp(common.timestamp);
+    }else{
+      wtoken.setExpiryTimestamp(((new DateTime()).plus(Duration.standardHours(2))).getMillis());
+    }
+
     // .... populate the WriteToken
     
     return wtoken;
