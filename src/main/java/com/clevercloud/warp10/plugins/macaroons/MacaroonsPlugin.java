@@ -17,8 +17,11 @@ package com.clevercloud.warp10.plugins.macaroons;
 
 import java.util.*;
 
+import com.clevercloud.warp10.plugins.macaroons.verifiers.AccessCaveatVerifier;
+import com.clevercloud.warp10.plugins.macaroons.verifiers.PrefixValidationCaveatVerifier;
 import com.github.nitram509.jmacaroons.CaveatPacket;
 import com.github.nitram509.jmacaroons.MacaroonsVerifier;
+import com.github.nitram509.jmacaroons.verifier.AuthoritiesCaveatVerifier;
 import com.github.nitram509.jmacaroons.verifier.TimestampCaveatVerifier;
 import io.warp10.continuum.AuthenticationPlugin;
 import io.warp10.continuum.Tokens;
@@ -63,16 +66,19 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     }
 
     ReadToken rtoken = new ReadToken();
-
-    System.out.println(token);
     Macaroon macaroon = MacaroonsBuilder.deserialize(token.substring(PREFIX.length()).trim());
 
     MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon)
-            .satisfyGeneral(new TimestampCaveatVerifier());
+            .satisfyGeneral(new TimestampCaveatVerifier())
+            .satisfyGeneral(new PrefixValidationCaveatVerifier("label = "))
+            .satisfyGeneral(new PrefixValidationCaveatVerifier("attr = "))
+            .satisfyGeneral(new AccessCaveatVerifier("READ"));
+
     boolean valid = verifier.isValid(secretKey);
 
 
     System.out.println("😇😇😇  valid: " + valid + "\n" + macaroon.inspect());
+    System.out.println("😇😇😇");
 /* // TODO is valid must be activated
     if(!verifier.isValid(secretKey)){
       return null;
@@ -89,17 +95,21 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
       System.out.println("-> " + caveat.getValueAsText());
 
       if(caveat.getValueAsText().startsWith("time < ")){
-        rtoken.setExpiryTimestamp((new DateTime(caveat.getValueAsText().substring("time < ".length()))).getMillis());
+        rtoken.setExpiryTimestamp((new DateTime(caveat.getValueAsText().substring("time < ".length()).trim())).getMillis());
       }
-      if(caveat.getValueAsText().startsWith("label=")){
-        String line = caveat.getValueAsText().substring("label=".length());
+      if(caveat.getValueAsText().startsWith("label = ")){
+        String line = caveat.getValueAsText().substring("label = ".length());
         int whereIsEqual = line.indexOf("=");
-        labels.put(line.substring(0,whereIsEqual),line.substring(whereIsEqual+1));
+        String k = line.substring(0,whereIsEqual).trim();
+        String v = line.substring(whereIsEqual+1).trim();
+        labels.putIfAbsent(k,v);
       }
-      if(caveat.getValueAsText().startsWith("attr=")){
-        String line = caveat.getValueAsText().substring("attr=".length());
+      if(caveat.getValueAsText().startsWith("attr = ")){
+        String line = caveat.getValueAsText().substring("attr = ".length());
         int whereIsEqual = line.indexOf("=");
-        attributes.put(line.substring(0,whereIsEqual),line.substring(whereIsEqual+1));
+        String k = line.substring(0,whereIsEqual).trim();
+        String v = line.substring(whereIsEqual+1).trim();
+        attributes.putIfAbsent(k,v);
       }
 
     }
@@ -107,16 +117,16 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     rtoken.setLabels(labels);
     rtoken.setAttributes(attributes);
 
-    System.out.println("labels => " + labels.toString());
-    System.out.println("attributes => " + attributes.toString());
+
 
     if(!rtoken.isSetExpiryTimestamp()){
       rtoken.setExpiryTimestamp(((new DateTime()).plus(Duration.standardHours(2))).getMillis());
     }
     // .... populate the ReadToken
 
+    System.out.println(labels + " \n" + attributes);
     System.out.println(rtoken.toString());
-    
+
     return rtoken;
   }
   
@@ -148,18 +158,29 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     String identifier = "we used our secret key";
     Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
             .add_first_party_caveat("time < 2019-01-01T00:00")
-            .add_first_party_caveat("label=host=127.0.0.1")
-            .add_first_party_caveat("label=name=john")
-            .add_first_party_caveat("label=surname=doe")
-            .add_first_party_caveat("attr=role=CEO")
+            .add_first_party_caveat("label = host=127.0.0.1")
+            .add_first_party_caveat("label = name=john")
+            .add_first_party_caveat("label = surname=doe")
+            .add_first_party_caveat("attr = role=CEO")
+            .add_first_party_caveat("access = READ, WRITE")
             .getMacaroon();
     String serialized = macaroon.serialize();
-    System.out.println("Serialized: " + serialized);
+    System.out.println("🎂 Serialized: " + serialized);
 
-    Macaroon macaroon2 = new MacaroonsBuilder(location, secretKey, identifier + "1")
+    Macaroon macaroon_1 = MacaroonsBuilder.deserialize(serialized);
+    String identifier2 = "we used our secret key";
+
+    Macaroon macaroon2 = new MacaroonsBuilder(macaroon_1)
+    //        .prepare_for_request(macaroon_1)
+            .add_first_party_caveat("access = READ, GLO")
+//            .add_first_party_caveat("authorities = READ")
+            .add_first_party_caveat("label = surname=grosdada")
             .getMacaroon();
     String serialized2 = macaroon2.serialize();
-    System.out.println("Serialized: " + serialized2);
+    System.out.println("🍰 Serialized: " + serialized2);
+
+    System.out.println("'macaroon: "+serialized+"' TOKENINFO");
+    System.out.println("'macaroon: "+serialized2+"' TOKENINFO");
 
   }
 }
