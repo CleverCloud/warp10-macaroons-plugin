@@ -50,7 +50,6 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
   private static final Logger LOG = LoggerFactory.getLogger(MacaroonsPlugin.class);
 
-  // TODO get it from conf file
   private String secretKey = "this is our super secret key; only we should know it";
 
 
