@@ -9,7 +9,7 @@ TODO
 
 # Macaroon format
 
-`
+```
     location TODO
     identifier TODO
     # How to:
@@ -30,4 +30,4 @@ TODO
     cid groovy = true
 
     signature 3f1fd7d14bf9b902f69fdaa0c98879c0bb1b174e70b572527aefea524c33b352
-`
+```
