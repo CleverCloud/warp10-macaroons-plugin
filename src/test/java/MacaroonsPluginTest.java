@@ -46,6 +46,8 @@ public class MacaroonsPluginTest {
         Macaroon macaroon2 = new MacaroonsBuilder(macaroon_1)
                 .add_first_party_caveat("access = READ, GLO")
                 .add_first_party_caveat("label = surname=grosdada")
+                .add_first_party_caveat("attr = role=DBO")
+                .add_first_party_caveat("attr = new_attributes=some:data")
                 .add_first_party_caveat("plop = GLO, GLOU, ADD")
 
                 .getMacaroon();
@@ -79,6 +81,7 @@ public class MacaroonsPluginTest {
          MacaroonsPlugin mp = new MacaroonsPlugin();
          try {
              ReadToken rtoken = mp.extractReadToken(mp.getPrefix() + serialized2);
+
              Map<String, String> tklabel = rtoken.getLabels();
              Map<String, String> needed_labels = new HashMap<>();
              needed_labels.put("surname", "doe");
@@ -86,6 +89,14 @@ public class MacaroonsPluginTest {
              needed_labels.put("name", "john");
              Boolean blabel = tklabel.equals(needed_labels);
              assertTrue("Labels are the good ones", blabel);
+
+
+             Map<String, String> tkattr = rtoken.getAttributes();
+             Map<String, String> needed_attr = new HashMap<>();
+             needed_attr.put("role", "CEO");
+             needed_attr.put("new_attributes", "some:data");
+             Boolean battr = tkattr.equals(needed_attr);
+             assertTrue("Attributes are the good ones", battr);
 
 
          } catch (WarpScriptException e) {
