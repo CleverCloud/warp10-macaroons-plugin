@@ -15,14 +15,14 @@ public class AccessCaveatVerifier implements GeneralCaveatVerifier {
 
     private Set<String> needed_access;
 
-    public AccessCaveatVerifier(Set<String> requiredAccess) {
-        CAVEAT_PREFIX = "access = ";
+    public AccessCaveatVerifier(Set<String> requiredAccess, String prefix) {
+        CAVEAT_PREFIX = prefix;
         accesses = null;
         needed_access = requiredAccess;
     }
 
     public AccessCaveatVerifier(String... requiredAccesses){
-        this(new HashSet<String>(Arrays.asList(requiredAccesses)));
+        this(new HashSet<String>(Arrays.asList(requiredAccesses)), "access = ");
     }
 
     public AccessCaveatVerifier(String requiredAccess){
@@ -37,10 +37,7 @@ public class AccessCaveatVerifier implements GeneralCaveatVerifier {
                 accesses = cavaetAuthorities;
             }else {
                 accesses = Sets.intersection(accesses, cavaetAuthorities);
-                System.out.println("UNION: "+accesses.toString());
             }
-            System.out.println("caveat:+" + caveat + "  |  " + "accesses:" + accesses.toString() + "  |  " + "cavaetAuthorities:"+cavaetAuthorities.toString());
-
             return accesses.containsAll(needed_access);
         }
         return false;
