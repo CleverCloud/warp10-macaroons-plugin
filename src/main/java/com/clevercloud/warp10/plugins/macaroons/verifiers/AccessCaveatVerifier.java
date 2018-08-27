@@ -15,14 +15,14 @@ public class AccessCaveatVerifier implements GeneralCaveatVerifier {
 
     private Set<String> needed_access;
 
-    public AccessCaveatVerifier(Set<String> requiredAccess, String prefix) {
+    public AccessCaveatVerifier(String prefix, Set<String> requiredAccess) {
         CAVEAT_PREFIX = prefix;
         accesses = null;
         needed_access = requiredAccess;
     }
 
     public AccessCaveatVerifier(String... requiredAccesses){
-        this(new HashSet<String>(Arrays.asList(requiredAccesses)), "access = ");
+        this("access = ", new HashSet<String>(Arrays.asList(requiredAccesses)));
     }
 
     public AccessCaveatVerifier(String requiredAccess){

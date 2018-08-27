@@ -1,0 +1,9 @@
+
+#
+#/opt/java8/bin/java -cp etc:/opt/warp/bin/warp10-1.2.12-rc2-71-gf50bbe7.jar io.warp10.standalone.Warp /opt/warp/etc/warp.conf
+#
+#io.warp10.standalone.WarpInit path`
+# gradle shadowJar && java -cp /Users/waxzce/work/org/warp10-platform/warp10/build/libs/warp10-1.2.22-9-g921ab4c7.jar:build/libs/warp10-macaroons-plugin.jar:/Users/waxzce/work/org/warp10-platform/etc/ io.warp10.standalone.Warp warp10.conf
+#
+# gradle shadowJar && gradle compileTestJava && java -cp /Users/waxzce/work/org/warp10-platform/warp10/build/libs/warp10-1.2.22-9-g921ab4c7.jar:build/libs/warp10-macaroons-plugin.jar:/Users/waxzce/work/org/warp10-platform/etc/:build/classes/java/test/:~/.m2/repository/junit/junit/4.12/:~/.m2/repository/org/hamcrest/hamcrest-core/1.3/ MacaroonsPluginTest
+

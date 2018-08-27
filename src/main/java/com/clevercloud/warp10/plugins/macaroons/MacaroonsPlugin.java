@@ -68,6 +68,8 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     ReadToken rtoken = new ReadToken();
     Macaroon macaroon = MacaroonsBuilder.deserialize(token.substring(PREFIX.length()).trim());
 
+
+
     MacaroonsVerifier verifier = new MacaroonsVerifier(macaroon)
             .satisfyGeneral(new TimestampCaveatVerifier())
             .satisfyGeneral(new PrefixValidationCaveatVerifier("label = "))
@@ -171,10 +173,9 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     String identifier2 = "we used our secret key";
 
     Macaroon macaroon2 = new MacaroonsBuilder(macaroon_1)
-    //        .prepare_for_request(macaroon_1)
-            .add_first_party_caveat("access = READ, GLO")
-//            .add_first_party_caveat("authorities = READ")
+            .add_first_party_caveat("access = READ")
             .add_first_party_caveat("label = surname=grosdada")
+
             .getMacaroon();
     String serialized2 = macaroon2.serialize();
     System.out.println("🍰 Serialized: " + serialized2);
@@ -182,5 +183,10 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     System.out.println("'macaroon: "+serialized+"' TOKENINFO");
     System.out.println("'macaroon: "+serialized2+"' TOKENINFO");
 
+  }
+
+
+  public String getPrefix() {
+    return PREFIX;
   }
 }
