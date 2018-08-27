@@ -73,7 +73,7 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
 
     System.out.println("😇😇😇  valid: " + valid + "\n" + macaroon.inspect());
-/*
+/* // TODO is valid must be activated
     if(!verifier.isValid(secretKey)){
       return null;
     }
