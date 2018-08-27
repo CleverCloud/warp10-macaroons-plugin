@@ -1,31 +1,31 @@
 package com.clevercloud.warp10.plugins.macaroons.verifiers;
 
+import com.clevercloud.warp10.plugins.macaroons.CaveatDataExtractor;
 import com.github.nitram509.jmacaroons.GeneralCaveatVerifier;
 import com.google.common.collect.Sets;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-public class AccessCaveatVerifier implements GeneralCaveatVerifier {
+public class AccessCaveatVerifierExtractor implements GeneralCaveatVerifier, CaveatDataExtractor<Set<String>> {
     public final String CAVEAT_PREFIX;
 
     private Set<String> accesses;
 
     private Set<String> needed_access;
 
-    public AccessCaveatVerifier(String prefix, Set<String> requiredAccess) {
+    public AccessCaveatVerifierExtractor(String prefix, Set<String> requiredAccess) {
         CAVEAT_PREFIX = prefix;
         accesses = null;
         needed_access = requiredAccess;
     }
 
-    public AccessCaveatVerifier(String... requiredAccesses){
+    public AccessCaveatVerifierExtractor(String... requiredAccesses){
         this("access = ", new HashSet<String>(Arrays.asList(requiredAccesses)));
     }
 
-    public AccessCaveatVerifier(String requiredAccess){
+    public AccessCaveatVerifierExtractor(String requiredAccess){
         this(new String[]{requiredAccess});
     }
 
@@ -49,5 +49,15 @@ public class AccessCaveatVerifier implements GeneralCaveatVerifier {
             result.add(cavaetAuthority.trim());
         }
         return result;
+    }
+
+    @Override
+    public Set<String> getData() {
+        return accesses;
+    }
+
+    @Override
+    public String getCaveatPrefix() {
+        return CAVEAT_PREFIX;
     }
 }

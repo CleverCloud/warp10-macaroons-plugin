@@ -17,11 +17,9 @@ package com.clevercloud.warp10.plugins.macaroons;
 
 import java.util.*;
 
-import com.clevercloud.warp10.plugins.macaroons.verifiers.AccessCaveatVerifier;
-import com.clevercloud.warp10.plugins.macaroons.verifiers.PrefixValidationCaveatVerifier;
-import com.github.nitram509.jmacaroons.CaveatPacket;
-import com.github.nitram509.jmacaroons.MacaroonsVerifier;
-import com.github.nitram509.jmacaroons.verifier.TimestampCaveatVerifier;
+import com.clevercloud.warp10.plugins.macaroons.verifiers.AccessCaveatVerifierExtractor;
+import com.clevercloud.warp10.plugins.macaroons.verifiers.MapCaveatVerifierExtractor;
+import com.clevercloud.warp10.plugins.macaroons.verifiers.TimestampCaveatVerifierExtractor;
 import io.warp10.continuum.AuthenticationPlugin;
 import io.warp10.continuum.Tokens;
 import io.warp10.quasar.token.thrift.data.ReadToken;
@@ -55,11 +53,11 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
   private String secretKey = "this is our super secret key; only we should know it";
 
 
-  private MacaroonsVerifier getCommonVerifierForMacaroon(Macaroon macaroon ){
-    return new MacaroonsVerifier(macaroon)
-            .satisfyGeneral(new TimestampCaveatVerifier())
-            .satisfyGeneral(new PrefixValidationCaveatVerifier("label = "))
-            .satisfyGeneral(new PrefixValidationCaveatVerifier("attr = "));
+  private MacarronsVerifierExtractor getCommonVerifierForMacaroon(Macaroon macaroon ){
+    return new MacarronsVerifierExtractor(macaroon)
+            .satisfyGeneralAndExtract(new TimestampCaveatVerifierExtractor())
+            .satisfyGeneralAndExtract(new MapCaveatVerifierExtractor("label = "))
+            .satisfyGeneralAndExtract(new MapCaveatVerifierExtractor("attr = "));
   }
 
   private Macaroon getMacaroonFromToken(String token){
@@ -79,37 +77,13 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     }
   }
 
-  private CommonMacaroonInfos extractCommonInfosFromMacaroon(Macaroon macaroon){
-    List<CaveatPacket> caveats = Arrays.asList(macaroon.caveatPackets);
-
-    Map<String,String> labels = new HashMap<>();
-    Map<String,String> attributes = new HashMap<>();
-    Long timestamp = null;
-
-    for (CaveatPacket caveat : caveats) {
-      System.out.println("-> " + caveat.getValueAsText());
-
-      if(caveat.getValueAsText().startsWith("time < ")){
-        timestamp = (new DateTime(caveat.getValueAsText().substring("time < ".length()).trim())).getMillis();
-      }
-      if(caveat.getValueAsText().startsWith("label = ")){
-        String line = caveat.getValueAsText().substring("label = ".length());
-        int whereIsEqual = line.indexOf("=");
-        String k = line.substring(0,whereIsEqual).trim();
-        String v = line.substring(whereIsEqual+1).trim();
-        labels.putIfAbsent(k,v);
-      }
-      if(caveat.getValueAsText().startsWith("attr = ")){
-        String line = caveat.getValueAsText().substring("attr = ".length());
-        int whereIsEqual = line.indexOf("=");
-        String k = line.substring(0,whereIsEqual).trim();
-        String v = line.substring(whereIsEqual+1).trim();
-        attributes.putIfAbsent(k,v);
-      }
-
-    }
-
-    return new CommonMacaroonInfos(timestamp, labels, attributes);
+  private CommonMacaroonInfos extractCommonInfosFromMacaroon(Macaroon macaroon, MacarronsVerifierExtractor mve){
+    System.out.println(mve);
+    return new CommonMacaroonInfos(
+            ((Date) mve.getExtractorForPrefix("time < ").getData()).toInstant().toEpochMilli(),
+            (Map<String, String>) mve.getExtractorForPrefix("label = ").getData(),
+            (Map<String, String>)mve.getExtractorForPrefix("attr = ").getData()
+    );
   }
 
   //@Override
@@ -121,11 +95,10 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
     Macaroon macaroon = getMacaroonFromToken(token);
 
-    MacaroonsVerifier verifier = getCommonVerifierForMacaroon(macaroon)
-            .satisfyGeneral(new AccessCaveatVerifier("READ"));
+    MacarronsVerifierExtractor verifier = getCommonVerifierForMacaroon(macaroon)
+            .satisfyGeneralAndExtract(new AccessCaveatVerifierExtractor("READ"));
 
     boolean valid = verifier.isValid(secretKey);
-
 
     System.out.println("😇😇😇  valid: " + valid + "\n" + macaroon.inspect());
     System.out.println("😇😇😇");
@@ -137,8 +110,9 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
     ReadToken rtoken = new ReadToken();
 
-    CommonMacaroonInfos common = extractCommonInfosFromMacaroon(macaroon);
+    CommonMacaroonInfos common = extractCommonInfosFromMacaroon(macaroon,verifier );
 
+    System.out.println(common);
     rtoken.setLabels(common.labels);
     rtoken.setAttributes(common.attributes);
 
@@ -164,8 +138,8 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     }
     Macaroon macaroon = getMacaroonFromToken(token);
 
-    MacaroonsVerifier verifier = getCommonVerifierForMacaroon(macaroon)
-            .satisfyGeneral(new AccessCaveatVerifier("WRITE"));
+    MacarronsVerifierExtractor verifier = getCommonVerifierForMacaroon(macaroon)
+            .satisfyGeneralAndExtract(new AccessCaveatVerifierExtractor("WRITE"));
 
     boolean valid = verifier.isValid(secretKey);
 
@@ -179,7 +153,7 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
     WriteToken wtoken = new WriteToken();
 
-    CommonMacaroonInfos common = extractCommonInfosFromMacaroon(macaroon);
+    CommonMacaroonInfos common = extractCommonInfosFromMacaroon(macaroon, verifier);
 
     wtoken.setLabels(common.labels);
     wtoken.setAttributes(common.attributes);
