@@ -83,6 +83,7 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
 
     Map<String,String> labels = new HashMap<>();
+    Map<String,String> attributes = new HashMap<>();
 
     for (CaveatPacket caveat : caveats) {
       System.out.println("-> " + caveat.getValueAsText());
@@ -95,19 +96,26 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
         int whereIsEqual = line.indexOf("=");
         labels.put(line.substring(0,whereIsEqual),line.substring(whereIsEqual+1));
       }
+      if(caveat.getValueAsText().startsWith("attr=")){
+        String line = caveat.getValueAsText().substring("attr=".length());
+        int whereIsEqual = line.indexOf("=");
+        attributes.put(line.substring(0,whereIsEqual),line.substring(whereIsEqual+1));
+      }
 
     }
 
     rtoken.setLabels(labels);
-    System.out.println(labels.keySet());
-    System.out.println(labels.values());
+    rtoken.setAttributes(attributes);
 
-    System.out.println("😱 => " + labels.toString());
+    System.out.println("labels => " + labels.toString());
+    System.out.println("attributes => " + attributes.toString());
 
     if(!rtoken.isSetExpiryTimestamp()){
       rtoken.setExpiryTimestamp(((new DateTime()).plus(Duration.standardHours(2))).getMillis());
     }
     // .... populate the ReadToken
+
+    System.out.println(rtoken.toString());
     
     return rtoken;
   }
@@ -143,6 +151,7 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
             .add_first_party_caveat("label=host=127.0.0.1")
             .add_first_party_caveat("label=name=john")
             .add_first_party_caveat("label=surname=doe")
+            .add_first_party_caveat("attr=role=CEO")
             .getMacaroon();
     String serialized = macaroon.serialize();
     System.out.println("Serialized: " + serialized);
