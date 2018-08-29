@@ -139,8 +139,6 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
     if(common.timestamp != null){
       rtoken.setExpiryTimestamp(common.timestamp);
-    }else{
-      rtoken.setExpiryTimestamp(((new DateTime()).plus(Duration.standardDays(360))).getMillis());
     }
 
     return rtoken;
@@ -174,8 +172,6 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
     if(common.timestamp != null){
       wtoken.setExpiryTimestamp(common.timestamp);
-    }else{
-      wtoken.setExpiryTimestamp(((new DateTime()).plus(Duration.standardDays(360))).getMillis());
     }
 
     return wtoken;
