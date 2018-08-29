@@ -134,6 +134,7 @@ private MacaroonsPlugin mp;
             Boolean battr = tkattr.equals(needed_attr);
             assertTrue("Attributes are the good ones", battr);
 
+            /*
             Macaroon mgroovytrue = new MacaroonsBuilder(macaroon2)
                     .add_first_party_caveat("groovy = true")
                     .getMacaroon();
@@ -153,6 +154,7 @@ private MacaroonsPlugin mp;
                     .getMacaroon();
             ReadToken rtgroovyfalse2 = mp.extractReadToken(mp.getPrefix() + mgroovyfalse2.serialize());
             assertTrue("Groovy is still false", !rtgroovyfalse2.isGroovy());
+*/
 
             Macaroon munvalid = new MacaroonsBuilder(macaroon)
                     .add_first_party_caveat("access = WRITE")
@@ -160,13 +162,13 @@ private MacaroonsPlugin mp;
             ReadToken rtunvalid = mp.extractReadToken(mp.getPrefix() + munvalid.serialize());
             assertTrue("Write token will return null", rtunvalid == null);
 
-
+/*
             Macaroon mlookuptrue = new MacaroonsBuilder(macaroon2)
                     .add_first_party_caveat("lookup = true")
                     .getMacaroon();
             ReadToken readTokenlookup = mp.extractReadToken(mp.getPrefix() + mlookuptrue.serialize());
             assertTrue("Lookup is valid", readTokenlookup.isLookup());
-
+*/
         } catch (WarpScriptException e) {
             e.printStackTrace();
         }

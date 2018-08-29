@@ -73,14 +73,12 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     public final Long timestamp;
     public final Map<String,String> labels;
     public final Map<String,String> attributes;
-    public final Boolean lookup;
 
 
-    private CommonMacaroonInfos(Long timestamp, Map<String, String> labels, Map<String, String> attributes, Boolean lookup) {
+    private CommonMacaroonInfos(Long timestamp, Map<String, String> labels, Map<String, String> attributes) {
       this.timestamp = timestamp;
       this.labels = labels;
       this.attributes = attributes;
-      this.lookup = lookup;
     }
   }
 
@@ -88,13 +86,11 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     CaveatDataExtractor<Date> timeExtractor = mve.getExtractorForPrefix("time < ");
     CaveatDataExtractor<Map<String, String>> labelExtractor = mve.getExtractorForPrefix("label = ");
     CaveatDataExtractor<Map<String, String>> attributesExtractor = mve.getExtractorForPrefix("attr = ");
-    CaveatDataExtractor<Boolean> lookupExtractor = mve.getExtractorForPrefix("lookup = ");
 
     return new CommonMacaroonInfos(
             (timeExtractor.getData() != null ? timeExtractor.getData().toInstant().toEpochMilli() : null),
             labelExtractor.getData() != null ? labelExtractor.getData() : new HashMap<>(),
-            attributesExtractor.getData() != null ? attributesExtractor.getData() : new HashMap<>(),
-            lookupExtractor.getData()
+            attributesExtractor.getData() != null ? attributesExtractor.getData() : new HashMap<>()
     );
   }
 
@@ -107,9 +103,8 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     Macaroon macaroon = getMacaroonFromToken(token);
 
     MacarronsVerifierExtractor verifier = getCommonVerifierForMacaroon(macaroon)
-            .satisfyGeneralAndExtract(new AccessCaveatVerifierExtractor("READ"))
-            .satisfyGeneralAndExtract(new MaxLongCaveatVerifierExtractor("max_fetch_size = "))
-            .satisfyGeneralAndExtract(new BooleanCaveatVerifierExtractor("groovy = "));
+            .satisfyGeneralAndExtract(new AccessCaveatVerifierExtractor("READ"));
+
 
     boolean valid = verifier.isValid(secretKey);
 
@@ -123,19 +118,6 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
     rtoken.setLabels(common.labels);
     rtoken.setAttributes(common.attributes);
-    if(common.lookup != null){
-      rtoken.setLookup(common.lookup);
-    }
-
-    CaveatDataExtractor<Boolean> groovyExtractor = verifier.getExtractorForPrefix("groovy = ");
-    if(groovyExtractor.getData() != null) {
-      rtoken.setGroovy(groovyExtractor.getData());
-    }
-
-    CaveatDataExtractor<Long> maxFetchSizeExtractor = verifier.getExtractorForPrefix("max_fetch_size = ");
-    if(maxFetchSizeExtractor.getData() != null) {
-      rtoken.setMaxFetchSize(maxFetchSizeExtractor.getData());
-    }
 
     if(common.timestamp != null){
       rtoken.setExpiryTimestamp(common.timestamp);
@@ -166,9 +148,6 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
     wtoken.setLabels(common.labels);
     wtoken.setAttributes(common.attributes);
-    if(common.lookup != null){
-      wtoken.setLookup(common.lookup);
-    }
 
     if(common.timestamp != null){
       wtoken.setExpiryTimestamp(common.timestamp);

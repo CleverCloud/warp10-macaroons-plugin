@@ -32,14 +32,6 @@ TODO
     cid attr = attributekey2=attributevalue2
     cid attr = attributekey3=attributevalue3
 
-    # Read tokens only, groovy value (if is set to false once, cannot go to true again)
-    cid groovy = true
-
-    # Read tokens only, Max fetch value (max_fetch_size can only be smaller)
-    cid max_fetch_size = 10000
-
-    # Lookup value (if is set to false once, cannot go to true again)
-    cid lookup = true
 
     signature 3f1fd7d14bf9b902f69fdaa0c98879c0bb1b174e70b572527aefea524c33b352
 ```
