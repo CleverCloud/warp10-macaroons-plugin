@@ -24,7 +24,7 @@ public class MacarronsVerifierExtractor extends MacaroonsVerifier {
         return this;
     }
 
-    public CaveatDataExtractor getExtractorForPrefix(String prefix){
+    public CaveatDataExtractor getExtractorForPrefix(String prefix) {
         return caveatDataExtractors.get(prefix);
     }
 

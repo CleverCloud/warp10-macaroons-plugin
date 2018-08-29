@@ -20,12 +20,12 @@ public class MaxLongCaveatVerifierExtractor implements GeneralCaveatVerifier, Ca
 
     @Override
     public boolean verifyCaveat(String caveat) {
-        if(caveat.startsWith(CAVEAT_PREFIX)){
+        if (caveat.startsWith(CAVEAT_PREFIX)) {
             Long lcaveat = Long.parseLong(caveat.substring(CAVEAT_PREFIX.length()));
-            if(current_value == null){
+            if (current_value == null) {
                 current_value = lcaveat;
-            }else {
-                if (current_value > lcaveat){
+            } else {
+                if (current_value > lcaveat) {
                     current_value = lcaveat;
                 }
             }

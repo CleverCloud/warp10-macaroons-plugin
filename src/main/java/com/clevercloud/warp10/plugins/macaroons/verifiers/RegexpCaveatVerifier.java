@@ -21,7 +21,7 @@ public class RegexpCaveatVerifier implements GeneralCaveatVerifier {
                 .reduce(
                         validation_regexp.isEmpty(),
                         (sum, patter) -> (patter.matcher(caveat).find() || sum),
-                        (a,b) -> a && b
+                        (a, b) -> a && b
                 );
     }
 }

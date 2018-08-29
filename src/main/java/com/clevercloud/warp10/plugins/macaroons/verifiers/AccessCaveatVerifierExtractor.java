@@ -21,29 +21,29 @@ public class AccessCaveatVerifierExtractor implements GeneralCaveatVerifier, Cav
         needed_access = requiredAccess;
     }
 
-    public AccessCaveatVerifierExtractor(String... requiredAccesses){
+    public AccessCaveatVerifierExtractor(String... requiredAccesses) {
         this("access = ", new HashSet<String>(Arrays.asList(requiredAccesses)));
     }
 
-    public AccessCaveatVerifierExtractor(String prefix, String... requiredAccesses){
+    public AccessCaveatVerifierExtractor(String prefix, String... requiredAccesses) {
         this(prefix, new HashSet<String>(Arrays.asList(requiredAccesses)));
     }
 
-    public AccessCaveatVerifierExtractor(String prefix, String requiredAccess){
+    public AccessCaveatVerifierExtractor(String prefix, String requiredAccess) {
         this(prefix, new String[]{requiredAccess});
     }
 
-    public AccessCaveatVerifierExtractor( String requiredAccess){
+    public AccessCaveatVerifierExtractor(String requiredAccess) {
         this(new String[]{requiredAccess});
     }
 
     @Override
     public boolean verifyCaveat(String caveat) {
-        if(caveat.startsWith(CAVEAT_PREFIX)){
+        if (caveat.startsWith(CAVEAT_PREFIX)) {
             HashSet<String> cavaetAuthorities = asTrimmedSet(caveat.substring(CAVEAT_PREFIX.length()).split("[,]"));
-            if(accesses == null){
+            if (accesses == null) {
                 accesses = cavaetAuthorities;
-            }else {
+            } else {
                 accesses = Sets.intersection(accesses, cavaetAuthorities);
             }
             return accesses.containsAll(needed_access);
@@ -52,7 +52,7 @@ public class AccessCaveatVerifierExtractor implements GeneralCaveatVerifier, Cav
     }
 
     private HashSet<String> asTrimmedSet(String[] cavaetAuthorities) {
-        HashSet<String> result = new HashSet<>( cavaetAuthorities.length );
+        HashSet<String> result = new HashSet<>(cavaetAuthorities.length);
         for (String cavaetAuthority : cavaetAuthorities) {
             result.add(cavaetAuthority.trim());
         }

@@ -20,13 +20,13 @@ package com.clevercloud.warp10.plugins.macaroons.verifiers;
  */
 
 
-        import com.clevercloud.warp10.plugins.macaroons.CaveatDataExtractor;
-        import com.github.nitram509.jmacaroons.GeneralCaveatVerifier;
+import com.clevercloud.warp10.plugins.macaroons.CaveatDataExtractor;
+import com.github.nitram509.jmacaroons.GeneralCaveatVerifier;
 
-        import java.text.ParsePosition;
-        import java.text.SimpleDateFormat;
-        import java.util.Calendar;
-        import java.util.Date;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * <p>
@@ -34,7 +34,7 @@ package com.clevercloud.warp10.plugins.macaroons.verifiers;
  * Thus, it only supports general caveats i.e. <code>"time&nbsp;&lt;&nbsp;2085-12-31T00:00"</code>.
  * In general, ISO8601 timestamp format with optional parts is allowed.
  * </p>
- *
+ * <p>
  * <table>
  * <caption><strong>Supported formats</strong></caption>
  * <tr>
@@ -90,15 +90,18 @@ public class TimestampCaveatVerifierExtractor implements GeneralCaveatVerifier, 
     public boolean verifyCaveat(String caveat) {
         if (caveat.startsWith(CAVEAT_PREFIX)) {
             Date parsedDate = ISO_DateFormat_TIMEZONE.parse(caveat, new ParsePosition(CAVEAT_PREFIX_LEN));
-            if (parsedDate == null) parsedDate = ISO_DateFormat_SECOND.parse(caveat, new ParsePosition(CAVEAT_PREFIX_LEN));
-            if (parsedDate == null) parsedDate = ISO_DateFormat_MINUTE.parse(caveat, new ParsePosition(CAVEAT_PREFIX_LEN));
-            if (parsedDate == null) parsedDate = ISO_DateFormat_HOUR.parse(caveat, new ParsePosition(CAVEAT_PREFIX_LEN));
+            if (parsedDate == null)
+                parsedDate = ISO_DateFormat_SECOND.parse(caveat, new ParsePosition(CAVEAT_PREFIX_LEN));
+            if (parsedDate == null)
+                parsedDate = ISO_DateFormat_MINUTE.parse(caveat, new ParsePosition(CAVEAT_PREFIX_LEN));
+            if (parsedDate == null)
+                parsedDate = ISO_DateFormat_HOUR.parse(caveat, new ParsePosition(CAVEAT_PREFIX_LEN));
             if (parsedDate == null) parsedDate = ISO_DateFormat_DAY.parse(caveat, new ParsePosition(CAVEAT_PREFIX_LEN));
             Date now = Calendar.getInstance().getTime();
-            if(lastDate == null){
+            if (lastDate == null) {
                 lastDate = parsedDate;
-            }else{
-                if (lastDate.after(parsedDate)){
+            } else {
+                if (lastDate.after(parsedDate)) {
                     lastDate = parsedDate;
                 }
             }

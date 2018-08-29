@@ -10,7 +10,7 @@ public class MapCaveatVerifierExtractor implements GeneralCaveatVerifier, Caveat
 
     public final String CAVEAT_PREFIX;
 
-    private Map<String,String> datas = new HashMap<>();
+    private Map<String, String> datas = new HashMap<>();
 
 
     public MapCaveatVerifierExtractor(String caveat_prefix) {
@@ -22,9 +22,9 @@ public class MapCaveatVerifierExtractor implements GeneralCaveatVerifier, Caveat
         if (caveat.startsWith(CAVEAT_PREFIX)) {
             String line = caveat.substring(CAVEAT_PREFIX.length());
             int whereIsEqual = line.indexOf("=");
-            String k = line.substring(0,whereIsEqual).trim();
-            String v = line.substring(whereIsEqual+1).trim();
-            datas.putIfAbsent(k,v);
+            String k = line.substring(0, whereIsEqual).trim();
+            String v = line.substring(whereIsEqual + 1).trim();
+            datas.putIfAbsent(k, v);
             return true;
         }
         return false;
