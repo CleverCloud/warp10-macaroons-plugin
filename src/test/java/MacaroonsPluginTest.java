@@ -115,7 +115,12 @@ private MacaroonsPlugin mp;
 
 
 
+
+
         try {
+
+            assertTrue("Token prefix are configured or not, try blahblah: and failed, please use " + mp.getPrefix(), mp.extractReadToken("blahblah:" + serialized2) == null);
+
             ReadToken rtoken = mp.extractReadToken(mp.getPrefix() + serialized2);
 
             Map<String, String> tklabel = rtoken.getLabels();

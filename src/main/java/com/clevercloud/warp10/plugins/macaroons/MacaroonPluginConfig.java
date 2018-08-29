@@ -12,7 +12,7 @@ public class MacaroonPluginConfig {
      * String
      * Value of warp10 token prefix triggering the plugin use, default to macaroon:
      */
-    public static final String MACAROON_TOKEN_PREFIX = "plugins.macaroons.secret";
+    public static final String MACAROON_TOKEN_PREFIX = "plugins.macaroons.token_prefix";
 
     /**
      * String

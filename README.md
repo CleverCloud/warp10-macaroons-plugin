@@ -41,9 +41,10 @@ TODO
 # Plugin configuration
 
 Configuration keys for the plugin is to add to the warp10.conf file.
-All options are listed and described in the MacaroonPluginConfig.java file
+All options are listed and described in the src/main/java/com/clevercloud/warp10/plugins/macaroons/MacaroonPluginConfig.java file
 
 ```
 plugins.macaroons.secret = test secret key
 
 ```
+Current options include secret, token prefix filter, caveat prefix and auto validation caveat management.
