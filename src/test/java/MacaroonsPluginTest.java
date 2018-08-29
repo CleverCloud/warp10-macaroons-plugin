@@ -8,16 +8,18 @@ import com.github.nitram509.jmacaroons.Macaroon;
 import com.github.nitram509.jmacaroons.MacaroonsBuilder;
 import com.github.nitram509.jmacaroons.MacaroonsVerifier;
 import com.github.nitram509.jmacaroons.verifier.TimestampCaveatVerifier;
+import io.warp10.WarpConfig;
+import io.warp10.continuum.Configuration;
 import io.warp10.quasar.token.thrift.data.ReadToken;
 import io.warp10.script.WarpScriptException;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 
 public class MacaroonsPluginTest {
-    private String secretKey = "this is our super secret key; only we should know it";
+
+private String secretKey = "test secret key";
+private MacaroonsPlugin mp;
 
      public void testSomeLibraryMethod1() {
 
@@ -110,7 +112,9 @@ public class MacaroonsPluginTest {
         System.out.println("--");
         System.out.println("-- now play with macaroon -> warp10 tokens");
 
-        MacaroonsPlugin mp = new MacaroonsPlugin();
+
+
+
         try {
             ReadToken rtoken = mp.extractReadToken(mp.getPrefix() + serialized2);
 
@@ -180,8 +184,34 @@ public class MacaroonsPluginTest {
         System.out.println(s);
     }
 
-    public static void main(String[] args){
+    private void init(String file) throws IOException {
+        /*try {
+
+            System.setProperty(Configuration.WARP10_QUIET, "true");
+            System.setProperty(Configuration.WARPSCRIPT_REXEC_ENABLE, "true");
+
+            if (null == System.getProperty(Configuration.WARP_TIME_UNITS)) {
+                System.setProperty(Configuration.WARP_TIME_UNITS, "us");
+            }
+      //      WarpConfig.setProperties((String) null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+*/
+         WarpConfig.setProperties(file);
+
+        mp = new MacaroonsPlugin();
+        mp.readConfig();
+    }
+
+    public static void main(String[] args) throws IOException {
+         if (args.length < 1){
+             System.out.println("the first argument need to be a warp10.conf file path");
+         }
+
+
         MacaroonsPluginTest mpt = new MacaroonsPluginTest();
+        mpt.init(args[0]);
         mpt.testSomeLibraryMethod1();
         mpt.testSomeLibraryMethod2();
     }

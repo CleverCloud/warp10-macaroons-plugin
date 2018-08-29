@@ -43,3 +43,15 @@ TODO
 
     signature 3f1fd7d14bf9b902f69fdaa0c98879c0bb1b174e70b572527aefea524c33b352
 ```
+
+
+
+# Plugin configuration
+
+Configuration keys for the plugin is to add to the warp10.conf file.
+All options are listed and described in the MacaroonPluginConfig.java file
+
+```
+plugins.macaroons.secret = test secret key
+
+```

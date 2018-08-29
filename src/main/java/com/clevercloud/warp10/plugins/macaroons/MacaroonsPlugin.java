@@ -16,8 +16,10 @@ package com.clevercloud.warp10.plugins.macaroons;
 //
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.clevercloud.warp10.plugins.macaroons.verifiers.*;
+import io.warp10.WarpConfig;
 import io.warp10.continuum.AuthenticationPlugin;
 import io.warp10.continuum.Tokens;
 import io.warp10.quasar.token.thrift.data.ReadToken;
@@ -30,6 +32,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.misc.Regexp;
 
 
 /**
@@ -43,11 +46,15 @@ import org.slf4j.LoggerFactory;
  */
 public class MacaroonsPlugin extends AbstractWarp10Plugin implements AuthenticationPlugin {
 //public class MacaroonsPlugin {
-  private static final String PREFIX = "macaroon:";
+  private static String PREFIX;
 
   private static final Logger LOG = LoggerFactory.getLogger(MacaroonsPlugin.class);
 
-  private String secretKey = "this is our super secret key; only we should know it";
+  // Configuration
+  private String secretKey;
+  private String warp_caveat_prefix;
+  private Set<String> auto_valid_caveat_regexp;
+  private Set<Regexp> auto_valid_caveat_regexp_compiled;
 
 
   private MacarronsVerifierExtractor getCommonVerifierForMacaroon(Macaroon macaroon ){
@@ -176,8 +183,44 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
   
   //@Override
   public void init(Properties properties) {
+    LOG.info("Reading Macaroons plugin configuration");
+    readConfig();
     LOG.info("Registering Macaroon authentication plugin");
     Tokens.register(this);
+  }
+
+  public void readConfig(){
+    Properties props = WarpConfig.getProperties();
+    System.out.println(props);
+    if(props.containsKey(MacaroonPluginConfig.MACAROON_SECRET)){
+      secretKey = props.getProperty(MacaroonPluginConfig.MACAROON_SECRET);
+    }else {
+      LOG.error("No secret defined for Macaroon plugin, it will not work and it's dangerous, please add " + MacaroonPluginConfig.MACAROON_SECRET + " entry to your configuration");
+    }
+
+    PREFIX = props.getProperty(MacaroonPluginConfig.MACAROON_TOKEN_PREFIX, "macaroon:");
+
+    if(props.containsKey(MacaroonPluginConfig.MACAROON_WARP_CAVEAT_PREFIX)){
+      warp_caveat_prefix = props.getProperty(MacaroonPluginConfig.MACAROON_WARP_CAVEAT_PREFIX);
+      LOG.info("Macaroon plugin will use " + warp_caveat_prefix + " as a prefix for all caveat");
+    }else {
+      warp_caveat_prefix = "";
+    }
+
+    if(props.containsKey(MacaroonPluginConfig.MACAROON_VALID_CAVEAT_REGEXP)){
+      auto_valid_caveat_regexp = Arrays.asList(props.getProperty(MacaroonPluginConfig.MACAROON_WARP_CAVEAT_PREFIX).split(","))
+              .stream()
+              .map(s -> s.trim())
+              .collect(Collectors.toSet());
+      auto_valid_caveat_regexp_compiled = auto_valid_caveat_regexp
+              .stream()
+              .map(s -> new Regexp(s))
+              .collect(Collectors.toSet());
+      LOG.info("Macaroon plugin will automatically validate every caveat with theses regexp: " + auto_valid_caveat_regexp );
+    }else {
+      auto_valid_caveat_regexp = new HashSet<>();
+      auto_valid_caveat_regexp_compiled = new HashSet<>();
+    }
   }
 
 
