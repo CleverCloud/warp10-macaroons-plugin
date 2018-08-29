@@ -11,6 +11,7 @@ import com.github.nitram509.jmacaroons.verifier.TimestampCaveatVerifier;
 import io.warp10.WarpConfig;
 import io.warp10.continuum.Configuration;
 import io.warp10.quasar.token.thrift.data.ReadToken;
+import io.warp10.quasar.token.thrift.data.WriteToken;
 import io.warp10.script.WarpScriptException;
 
 import java.io.IOException;

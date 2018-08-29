@@ -32,8 +32,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.Regexp;
-
+import java.util.regex.*;
 
 /**
  * Example Warp 10 plugin which adds an AuthenticationPlugin to support a dummy
@@ -54,15 +53,19 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
   private String secretKey;
   private String warp_caveat_prefix;
   private Set<String> auto_valid_caveat_regexp;
-  private Set<Regexp> auto_valid_caveat_regexp_compiled;
+  private Set<Pattern> auto_valid_caveat_regexp_compiled;
 
 
   private MacarronsVerifierExtractor getCommonVerifierForMacaroon(Macaroon macaroon ){
-    return new MacarronsVerifierExtractor(macaroon)
+    MacarronsVerifierExtractor mve = new MacarronsVerifierExtractor(macaroon)
             .satisfyGeneralAndExtract(new TimestampCaveatVerifierExtractor())
             .satisfyGeneralAndExtract(new MapCaveatVerifierExtractor(warp_caveat_prefix+"label = "))
             .satisfyGeneralAndExtract(new MapCaveatVerifierExtractor(warp_caveat_prefix+"attr = "))
             .satisfyGeneralAndExtract(new BooleanCaveatVerifierExtractor(warp_caveat_prefix+"lookup = "));
+    if(!auto_valid_caveat_regexp_compiled.isEmpty()){
+      mve = mve.satisfyGeneral(new RegexpCaveatVerifier(auto_valid_caveat_regexp_compiled));
+    }
+    return mve;
   }
 
   private Macaroon getMacaroonFromToken(String token){
@@ -182,13 +185,13 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     }
 
     if(props.containsKey(MacaroonPluginConfig.MACAROON_VALID_CAVEAT_REGEXP)){
-      auto_valid_caveat_regexp = Arrays.asList(props.getProperty(MacaroonPluginConfig.MACAROON_WARP_CAVEAT_PREFIX).split(","))
+      auto_valid_caveat_regexp = Arrays.asList(props.getProperty(MacaroonPluginConfig.MACAROON_VALID_CAVEAT_REGEXP).split(","))
               .stream()
               .map(s -> s.trim())
               .collect(Collectors.toSet());
       auto_valid_caveat_regexp_compiled = auto_valid_caveat_regexp
               .stream()
-              .map(s -> new Regexp(s))
+              .map(s -> Pattern.compile(s))
               .collect(Collectors.toSet());
       LOG.info("Macaroon plugin will automatically validate every caveat with theses regexp: " + auto_valid_caveat_regexp );
     }else {
