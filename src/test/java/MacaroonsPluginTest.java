@@ -74,7 +74,7 @@ private MacaroonsPlugin mp;
 
     }
 
-    public void testSomeLibraryMethod2() {
+    public void testSomeLibraryMethod2() throws IOException {
 
         System.out.println("-- First we will play with Macaroons");
 
@@ -174,6 +174,22 @@ private MacaroonsPlugin mp;
             ReadToken readTokenlookup = mp.extractReadToken(mp.getPrefix() + mlookuptrue.serialize());
             assertTrue("Lookup is valid", readTokenlookup.isLookup());
 */
+/*
+            WarpConfig.setProperties("src/test/resources/warp_caveat_prefix.conf");
+            mp.readConfig();
+            Macaroon macaroon_refix = new MacaroonsBuilder(location, secretKey, identifier)
+                    .add_first_party_caveat("wc_time < 2019-01-01T00:00")
+                    .add_first_party_caveat("wc_label = host=127.0.0.1")
+                    .add_first_party_caveat("wc_label = name=john")
+                    .add_first_party_caveat("wc_label = surname=doe")
+                    .add_first_party_caveat("wc_attr = role=CEO")
+                    .add_first_party_caveat("wc_access = READ, WRITE")
+                    .getMacaroon();
+            String macaroon_refix_serialized = macaroon.serialize();
+            assertTrue("It seems that prefixing caveat works", mp.extractWriteToken(macaroon_refix_serialized) != null);
+*/
+
+
         } catch (WarpScriptException e) {
             e.printStackTrace();
         }

@@ -25,7 +25,15 @@ public class AccessCaveatVerifierExtractor implements GeneralCaveatVerifier, Cav
         this("access = ", new HashSet<String>(Arrays.asList(requiredAccesses)));
     }
 
-    public AccessCaveatVerifierExtractor(String requiredAccess){
+    public AccessCaveatVerifierExtractor(String prefix, String... requiredAccesses){
+        this(prefix, new HashSet<String>(Arrays.asList(requiredAccesses)));
+    }
+
+    public AccessCaveatVerifierExtractor(String prefix, String requiredAccess){
+        this(prefix, new String[]{requiredAccess});
+    }
+
+    public AccessCaveatVerifierExtractor( String requiredAccess){
         this(new String[]{requiredAccess});
     }
 

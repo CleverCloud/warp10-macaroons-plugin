@@ -60,9 +60,9 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
   private MacarronsVerifierExtractor getCommonVerifierForMacaroon(Macaroon macaroon ){
     return new MacarronsVerifierExtractor(macaroon)
             .satisfyGeneralAndExtract(new TimestampCaveatVerifierExtractor())
-            .satisfyGeneralAndExtract(new MapCaveatVerifierExtractor("label = "))
-            .satisfyGeneralAndExtract(new MapCaveatVerifierExtractor("attr = "))
-            .satisfyGeneralAndExtract(new BooleanCaveatVerifierExtractor("lookup = "));
+            .satisfyGeneralAndExtract(new MapCaveatVerifierExtractor(warp_caveat_prefix+"label = "))
+            .satisfyGeneralAndExtract(new MapCaveatVerifierExtractor(warp_caveat_prefix+"attr = "))
+            .satisfyGeneralAndExtract(new BooleanCaveatVerifierExtractor(warp_caveat_prefix+"lookup = "));
   }
 
   private Macaroon getMacaroonFromToken(String token){
@@ -83,9 +83,9 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
   }
 
   private CommonMacaroonInfos extractCommonInfosFromMacaroon(Macaroon macaroon, MacarronsVerifierExtractor mve){
-    CaveatDataExtractor<Date> timeExtractor = mve.getExtractorForPrefix("time < ");
-    CaveatDataExtractor<Map<String, String>> labelExtractor = mve.getExtractorForPrefix("label = ");
-    CaveatDataExtractor<Map<String, String>> attributesExtractor = mve.getExtractorForPrefix("attr = ");
+    CaveatDataExtractor<Date> timeExtractor = mve.getExtractorForPrefix(warp_caveat_prefix+"time < ");
+    CaveatDataExtractor<Map<String, String>> labelExtractor = mve.getExtractorForPrefix(warp_caveat_prefix+"label = ");
+    CaveatDataExtractor<Map<String, String>> attributesExtractor = mve.getExtractorForPrefix(warp_caveat_prefix+"attr = ");
 
     return new CommonMacaroonInfos(
             (timeExtractor.getData() != null ? timeExtractor.getData().toInstant().toEpochMilli() : null),
@@ -103,7 +103,7 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     Macaroon macaroon = getMacaroonFromToken(token);
 
     MacarronsVerifierExtractor verifier = getCommonVerifierForMacaroon(macaroon)
-            .satisfyGeneralAndExtract(new AccessCaveatVerifierExtractor("READ"));
+            .satisfyGeneralAndExtract(new AccessCaveatVerifierExtractor(warp_caveat_prefix+"access = ","READ"));
 
 
     boolean valid = verifier.isValid(secretKey);
@@ -134,7 +134,7 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
     Macaroon macaroon = getMacaroonFromToken(token);
 
     MacarronsVerifierExtractor verifier = getCommonVerifierForMacaroon(macaroon)
-            .satisfyGeneralAndExtract(new AccessCaveatVerifierExtractor("WRITE"));
+            .satisfyGeneralAndExtract(new AccessCaveatVerifierExtractor(warp_caveat_prefix+"access = ","WRITE"));
 
     boolean valid = verifier.isValid(secretKey);
 
@@ -166,7 +166,6 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
   public void readConfig(){
     Properties props = WarpConfig.getProperties();
-    System.out.println(props);
     if(props.containsKey(MacaroonPluginConfig.MACAROON_SECRET)){
       secretKey = props.getProperty(MacaroonPluginConfig.MACAROON_SECRET);
     }else {
