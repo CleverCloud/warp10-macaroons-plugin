@@ -88,6 +88,7 @@ public class MacaroonsPluginTest {
                 .add_first_party_caveat("label = surname=doe")
                 .add_first_party_caveat("attr = role=CEO")
                 .add_first_party_caveat("access = READ, WRITE")
+                .add_first_party_caveat("appname = application name")
                 .getMacaroon();
         String serialized = macaroon.serialize();
         //     System.out.println("🎂 Serialized: " + serialized);
@@ -184,6 +185,16 @@ public class MacaroonsPluginTest {
             String macaroon_refix_serialized = macaroon.serialize();
             assertTrue("It seems that prefixing caveat works", mp.extractWriteToken(macaroon_refix_serialized) != null);
 */
+            Macaroon mappname = new MacaroonsBuilder(macaroon)
+                    .getMacaroon();
+            WriteToken wtappname = mp.extractWriteToken(mp.getPrefix() + mappname.serialize());
+            assertTrue("App name is set in token", wtappname.getAppName().equals("application name"));
+
+            Macaroon mappnamefalse = new MacaroonsBuilder(macaroon)
+                    .add_first_party_caveat("appname = another one")
+                    .getMacaroon();
+            WriteToken wtappnamefalse = mp.extractWriteToken(mp.getPrefix() + mappnamefalse.serialize());
+            assertTrue("App name have been rewriten and the token is failed", wtappnamefalse == null);
 
 
         } catch (WarpScriptException e) {

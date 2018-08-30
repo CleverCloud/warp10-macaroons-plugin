@@ -28,8 +28,6 @@ import io.warp10.script.WarpScriptException;
 import io.warp10.warp.sdk.AbstractWarp10Plugin;
 import com.github.nitram509.jmacaroons.Macaroon;
 import com.github.nitram509.jmacaroons.MacaroonsBuilder;
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +59,7 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
                 .satisfyGeneralAndExtract(new TimestampCaveatVerifierExtractor())
                 .satisfyGeneralAndExtract(new MapCaveatVerifierExtractor(warp_caveat_prefix + "label = "))
                 .satisfyGeneralAndExtract(new MapCaveatVerifierExtractor(warp_caveat_prefix + "attr = "))
-                .satisfyGeneralAndExtract(new BooleanCaveatVerifierExtractor(warp_caveat_prefix + "lookup = "));
+                .satisfyGeneralAndExtract(new StringCaveatVerifierExtractor(warp_caveat_prefix + "appname = "));
         if (!auto_valid_caveat_regexp_compiled.isEmpty()) {
             mve = mve.satisfyGeneral(new RegexpCaveatVerifier(auto_valid_caveat_regexp_compiled));
         }
@@ -76,12 +74,14 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
         public final Long timestamp;
         public final Map<String, String> labels;
         public final Map<String, String> attributes;
+        public final String appName;
 
 
-        private CommonMacaroonInfos(Long timestamp, Map<String, String> labels, Map<String, String> attributes) {
+        private CommonMacaroonInfos(Long timestamp, Map<String, String> labels, Map<String, String> attributes, String appName) {
             this.timestamp = timestamp;
             this.labels = labels;
             this.attributes = attributes;
+            this.appName = appName;
         }
     }
 
@@ -89,11 +89,13 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
         CaveatDataExtractor<Date> timeExtractor = mve.getExtractorForPrefix(warp_caveat_prefix + "time < ");
         CaveatDataExtractor<Map<String, String>> labelExtractor = mve.getExtractorForPrefix(warp_caveat_prefix + "label = ");
         CaveatDataExtractor<Map<String, String>> attributesExtractor = mve.getExtractorForPrefix(warp_caveat_prefix + "attr = ");
+        CaveatDataExtractor<String> appNameExtractor = mve.getExtractorForPrefix(warp_caveat_prefix + "appname = ");
 
         return new CommonMacaroonInfos(
                 (timeExtractor.getData() != null ? timeExtractor.getData().toInstant().toEpochMilli() : null),
                 labelExtractor.getData() != null ? labelExtractor.getData() : new HashMap<>(),
-                attributesExtractor.getData() != null ? attributesExtractor.getData() : new HashMap<>()
+                attributesExtractor.getData() != null ? attributesExtractor.getData() : new HashMap<>(),
+                appNameExtractor.getData()
         );
     }
 
@@ -126,6 +128,10 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
             rtoken.setExpiryTimestamp(common.timestamp);
         }
 
+        if (common.appName != null) {
+            rtoken.setAppName(common.appName);
+        }
+
         return rtoken;
     }
 
@@ -154,6 +160,10 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
         if (common.timestamp != null) {
             wtoken.setExpiryTimestamp(common.timestamp);
+        }
+
+        if (common.appName != null) {
+            wtoken.setAppName(common.appName);
         }
 
         return wtoken;
