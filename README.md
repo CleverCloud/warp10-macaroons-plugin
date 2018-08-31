@@ -35,7 +35,10 @@ TODO
     # App Name (cannot be set a second time, only once)
     appname = ljksjksdqhkl
 
-    # Read Token Producers (String array, values can disapear but not be added)
+    # Read token only, Apps id (String array, values can disappear but not be added)
+    apps = app1, app2, app3
+
+    # Read Token Producers (String array, values can disappear but not be added)
     producers = prod1, prod2, prod3
 
     # Write Token Producer (String, can't be changed)

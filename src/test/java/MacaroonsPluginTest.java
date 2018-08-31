@@ -214,6 +214,16 @@ public class MacaroonsPluginTest {
             WriteToken wtproducer = mp.extractWriteToken(mp.getPrefix() + mproducer.serialize());
             assertTrue("Write token producer is valid", "d".equals(Strings.fromByteArray(wtproducer.getProducerId())));
 
+            Macaroon mapps = new MacaroonsBuilder(macaroon)
+                    .add_first_party_caveat("apps = anapp1, anapp2, anapp3")
+                    .getMacaroon();
+            List<String> apps = new ArrayList<>();
+            apps.add("anapp1");
+            apps.add("anapp2");
+            apps.add("anapp3");
+            ReadToken rtapps = mp.extractReadToken(mp.getPrefix() + mapps.serialize());
+            assertTrue("Read token apps is valid", new HashSet<String>(apps).equals(new HashSet<String>(rtapps.getApps())));
+
 
 
         } catch (WarpScriptException e) {

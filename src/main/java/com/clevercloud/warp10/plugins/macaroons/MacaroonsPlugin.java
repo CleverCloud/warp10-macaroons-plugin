@@ -62,7 +62,8 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
                 .satisfyGeneralAndExtract(new MapCaveatVerifierExtractor(warp_caveat_prefix + "attr = "))
                 .satisfyGeneralAndExtract(new StringCaveatVerifierExtractor(warp_caveat_prefix + "appname = "))
                 .satisfyGeneralAndExtract(new StringCaveatVerifierExtractor("producer = "))
-                .satisfyGeneralAndExtract(new StringSetCaveatVerifierExtractor(warp_caveat_prefix + "producers = "));
+                .satisfyGeneralAndExtract(new StringSetCaveatVerifierExtractor(warp_caveat_prefix + "producers = "))
+                .satisfyGeneralAndExtract(new StringSetCaveatVerifierExtractor(warp_caveat_prefix + "apps = "));
 
         if (!auto_valid_caveat_regexp_compiled.isEmpty()) {
             mve = mve.satisfyGeneral(new RegexpCaveatVerifier(auto_valid_caveat_regexp_compiled));
@@ -123,8 +124,6 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
         ReadToken rtoken = new ReadToken();
 
-    //    rtoken.setApps()
-
         CommonMacaroonInfos common = extractCommonInfosFromMacaroon(macaroon, verifier);
 
         rtoken.setLabels(common.labels);
@@ -147,6 +146,12 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
                             .collect(Collectors.toList())
             );
         }
+
+        CaveatDataExtractor<Set<String>> appsExtractor = verifier.getExtractorForPrefix("apps = ");
+        if(appsExtractor.getData() != null) {
+            rtoken.setApps(new ArrayList<>(appsExtractor.getData()));
+        }
+
         return rtoken;
     }
 
@@ -181,12 +186,10 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
             wtoken.setAppName(common.appName);
         }
 
-
         CaveatDataExtractor<String> producerExtractor = verifier.getExtractorForPrefix("producer = ");
         if(producerExtractor.getData() != null) {
             wtoken.setProducerId(producerExtractor.getData().getBytes());
         }
-
 
         return wtoken;
     }
