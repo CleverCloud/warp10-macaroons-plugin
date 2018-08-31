@@ -115,6 +115,7 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
         Macaroon macaroon = getMacaroonFromToken(token);
 
         MacarronsVerifierExtractor verifier = getCommonVerifierForMacaroon(macaroon)
+                .satisfyGeneralAndExtract(new StringCaveatVerifierExtractor("billedid = "))
                 .satisfyGeneralAndExtract(new AccessCaveatVerifierExtractor(warp_caveat_prefix + "access = ", "READ"));
 
 
@@ -163,6 +164,12 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
                             .collect(Collectors.toList())
             );
         }
+
+        CaveatDataExtractor<String> billedIdExtractor = verifier.getExtractorForPrefix("billedid = ");
+        if(billedIdExtractor.getData() != null) {
+            rtoken.setBilledId(billedIdExtractor.getData().getBytes());
+        }
+
         return rtoken;
     }
 
@@ -206,7 +213,6 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
         if(ownerExtractor.getData() != null) {
             wtoken.setOwnerId(ownerExtractor.getData().getBytes());
         }
-
 
         return wtoken;
     }

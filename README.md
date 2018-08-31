@@ -32,7 +32,7 @@ TODO
     cid attr = attributekey2=attributevalue2
     cid attr = attributekey3=attributevalue3
 
-    # App Name (cannot be set a second time, only once)
+    # Write token only, App Name (cannot be set a second time, only once)
     appname = ljksjksdqhkl
 
     # Read token only, Apps id (String array, values can disappear but not be added)
@@ -49,6 +49,9 @@ TODO
 
     # Write Token Owner (String, can't be changed)
     owner = ownerA
+
+    # Read Token, billed ID (String, can't be changed)
+    billedid = myBillingId
 
     signature 3f1fd7d14bf9b902f69fdaa0c98879c0bb1b174e70b572527aefea524c33b352
 ```

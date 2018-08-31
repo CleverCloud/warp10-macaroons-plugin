@@ -246,6 +246,11 @@ public class MacaroonsPluginTest {
             assertTrue("Write token owner is valid", "ownerA".equals(Strings.fromByteArray(wtowner.getOwnerId())));
 
 
+            Macaroon mbilledid = new MacaroonsBuilder(macaroon)
+                    .add_first_party_caveat("billedid = myBillingId")
+                    .getMacaroon();
+            ReadToken rtowner = mp.extractReadToken(mp.getPrefix() + mbilledid.serialize());
+            assertTrue("Read token billed ID is valid", "myBillingId".equals(Strings.fromByteArray(rtowner.getBilledId())));
 
         } catch (WarpScriptException e) {
             e.printStackTrace();
