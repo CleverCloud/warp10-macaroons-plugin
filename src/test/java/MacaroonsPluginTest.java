@@ -19,6 +19,7 @@ import org.python.bouncycastle.util.Strings;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MacaroonsPluginTest {
 
@@ -207,7 +208,11 @@ public class MacaroonsPluginTest {
             List<ByteBuffer> lbb = new ArrayList<>();
             lbb.add(ByteBuffer.wrap("a".getBytes()));
             lbb.add(ByteBuffer.wrap("c".getBytes()));
-            assertTrue("Read token Producers are valid: " + rtproducers.getProducers(), lbb.equals(rtproducers.getProducers()));
+            assertTrue("Read token Producers are valid: " +
+                            convert(rtproducers.getProducers()) +
+                            " == " +
+                            convert(lbb),
+                    convert(lbb).equals(convert(rtproducers.getProducers())));
 
             Macaroon mproducer = new MacaroonsBuilder(macaroon)
                     .getMacaroon();
@@ -217,12 +222,28 @@ public class MacaroonsPluginTest {
             Macaroon mapps = new MacaroonsBuilder(macaroon)
                     .add_first_party_caveat("apps = anapp1, anapp2, anapp3")
                     .getMacaroon();
-            List<String> apps = new ArrayList<>();
+            HashSet<String> apps = new HashSet<>();
             apps.add("anapp1");
             apps.add("anapp2");
             apps.add("anapp3");
             ReadToken rtapps = mp.extractReadToken(mp.getPrefix() + mapps.serialize());
             assertTrue("Read token apps is valid", new HashSet<String>(apps).equals(new HashSet<String>(rtapps.getApps())));
+
+            Macaroon mowners = new MacaroonsBuilder(macaroon)
+                    .add_first_party_caveat("owners = owner1, owner2")
+                    .getMacaroon();
+            ReadToken rtowners = mp.extractReadToken(mp.getPrefix() + mowners.serialize());
+            List<ByteBuffer> owners = new ArrayList<>();
+            owners.add(ByteBuffer.wrap("owner1".getBytes()));
+            owners.add(ByteBuffer.wrap("owner2".getBytes()));
+            assertTrue("Read token Producers are valid: " + convert(rtowners.getOwners()) + " == " + convert(owners),
+                    convert(owners).equals(convert(rtowners.getOwners())));
+
+            Macaroon mowner = new MacaroonsBuilder(macaroon)
+                    .add_first_party_caveat("owner = ownerA")
+                    .getMacaroon();
+            WriteToken wtowner = mp.extractWriteToken(mp.getPrefix() + mowner.serialize());
+            assertTrue("Write token owner is valid", "ownerA".equals(Strings.fromByteArray(wtowner.getOwnerId())));
 
 
 
@@ -234,6 +255,10 @@ public class MacaroonsPluginTest {
         // TODO, find a way to run tests in a more clean way
 
 
+    }
+
+    private Set<String> convert(List<ByteBuffer> l){
+        return l.stream().map(p -> Strings.fromByteArray(p.array())).collect(Collectors.toSet());
     }
 
     private void assertTrue(String s, boolean valid) {

@@ -63,7 +63,9 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
                 .satisfyGeneralAndExtract(new StringCaveatVerifierExtractor(warp_caveat_prefix + "appname = "))
                 .satisfyGeneralAndExtract(new StringCaveatVerifierExtractor("producer = "))
                 .satisfyGeneralAndExtract(new StringSetCaveatVerifierExtractor(warp_caveat_prefix + "producers = "))
-                .satisfyGeneralAndExtract(new StringSetCaveatVerifierExtractor(warp_caveat_prefix + "apps = "));
+                .satisfyGeneralAndExtract(new StringSetCaveatVerifierExtractor(warp_caveat_prefix + "apps = "))
+                .satisfyGeneralAndExtract(new StringCaveatVerifierExtractor("owner = "))
+                .satisfyGeneralAndExtract(new StringSetCaveatVerifierExtractor(warp_caveat_prefix + "owners = "));
 
         if (!auto_valid_caveat_regexp_compiled.isEmpty()) {
             mve = mve.satisfyGeneral(new RegexpCaveatVerifier(auto_valid_caveat_regexp_compiled));
@@ -152,6 +154,15 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
             rtoken.setApps(new ArrayList<>(appsExtractor.getData()));
         }
 
+        CaveatDataExtractor<Set<String>> ownersExtractor = verifier.getExtractorForPrefix("owners = ");
+        if(ownersExtractor.getData() != null) {
+            rtoken.setOwners(
+                    ownersExtractor.getData()
+                            .stream()
+                            .map(o -> ByteBuffer.wrap(o.getBytes()))
+                            .collect(Collectors.toList())
+            );
+        }
         return rtoken;
     }
 
@@ -190,6 +201,12 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
         if(producerExtractor.getData() != null) {
             wtoken.setProducerId(producerExtractor.getData().getBytes());
         }
+
+        CaveatDataExtractor<String> ownerExtractor = verifier.getExtractorForPrefix("owner = ");
+        if(ownerExtractor.getData() != null) {
+            wtoken.setOwnerId(ownerExtractor.getData().getBytes());
+        }
+
 
         return wtoken;
     }

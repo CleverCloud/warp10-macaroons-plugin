@@ -44,6 +44,12 @@ TODO
     # Write Token Producer (String, can't be changed)
     producer = prod1
 
+    # Read Token Owners (String array, values can disappear but not be added)
+    owners = owner1, owner2, owner3
+
+    # Write Token Owner (String, can't be changed)
+    owner = ownerA
+
     signature 3f1fd7d14bf9b902f69fdaa0c98879c0bb1b174e70b572527aefea524c33b352
 ```
 
