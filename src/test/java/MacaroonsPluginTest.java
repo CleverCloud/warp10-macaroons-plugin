@@ -14,8 +14,10 @@ import io.warp10.continuum.Configuration;
 import io.warp10.quasar.token.thrift.data.ReadToken;
 import io.warp10.quasar.token.thrift.data.WriteToken;
 import io.warp10.script.WarpScriptException;
+import org.python.bouncycastle.util.Strings;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 public class MacaroonsPluginTest {
@@ -89,6 +91,8 @@ public class MacaroonsPluginTest {
                 .add_first_party_caveat("attr = role=CEO")
                 .add_first_party_caveat("access = READ, WRITE")
                 .add_first_party_caveat("appname = application name")
+                .add_first_party_caveat("producers = a, b, c")
+                .add_first_party_caveat("producer = d")
                 .getMacaroon();
         String serialized = macaroon.serialize();
         //     System.out.println("🎂 Serialized: " + serialized);
@@ -195,6 +199,21 @@ public class MacaroonsPluginTest {
                     .getMacaroon();
             WriteToken wtappnamefalse = mp.extractWriteToken(mp.getPrefix() + mappnamefalse.serialize());
             assertTrue("App name have been rewriten and the token is failed", wtappnamefalse == null);
+
+            Macaroon mproducers = new MacaroonsBuilder(macaroon)
+                    .add_first_party_caveat("producers = a, c")
+                    .getMacaroon();
+            ReadToken rtproducers = mp.extractReadToken(mp.getPrefix() + mproducers.serialize());
+            List<ByteBuffer> lbb = new ArrayList<>();
+            lbb.add(ByteBuffer.wrap("a".getBytes()));
+            lbb.add(ByteBuffer.wrap("c".getBytes()));
+            assertTrue("Read token Producers are valid: " + rtproducers.getProducers(), lbb.equals(rtproducers.getProducers()));
+
+            Macaroon mproducer = new MacaroonsBuilder(macaroon)
+                    .getMacaroon();
+            WriteToken wtproducer = mp.extractWriteToken(mp.getPrefix() + mproducer.serialize());
+            assertTrue("Write token producer is valid", "d".equals(Strings.fromByteArray(wtproducer.getProducerId())));
+
 
 
         } catch (WarpScriptException e) {

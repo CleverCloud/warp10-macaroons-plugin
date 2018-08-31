@@ -15,6 +15,7 @@ package com.clevercloud.warp10.plugins.macaroons;
 //   limitations under the License.
 //
 
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,7 +60,10 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
                 .satisfyGeneralAndExtract(new TimestampCaveatVerifierExtractor())
                 .satisfyGeneralAndExtract(new MapCaveatVerifierExtractor(warp_caveat_prefix + "label = "))
                 .satisfyGeneralAndExtract(new MapCaveatVerifierExtractor(warp_caveat_prefix + "attr = "))
-                .satisfyGeneralAndExtract(new StringCaveatVerifierExtractor(warp_caveat_prefix + "appname = "));
+                .satisfyGeneralAndExtract(new StringCaveatVerifierExtractor(warp_caveat_prefix + "appname = "))
+                .satisfyGeneralAndExtract(new StringCaveatVerifierExtractor("producer = "))
+                .satisfyGeneralAndExtract(new StringSetCaveatVerifierExtractor(warp_caveat_prefix + "producers = "));
+
         if (!auto_valid_caveat_regexp_compiled.isEmpty()) {
             mve = mve.satisfyGeneral(new RegexpCaveatVerifier(auto_valid_caveat_regexp_compiled));
         }
@@ -119,6 +123,8 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
 
         ReadToken rtoken = new ReadToken();
 
+    //    rtoken.setApps()
+
         CommonMacaroonInfos common = extractCommonInfosFromMacaroon(macaroon, verifier);
 
         rtoken.setLabels(common.labels);
@@ -132,6 +138,15 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
             rtoken.setAppName(common.appName);
         }
 
+        CaveatDataExtractor<Set<String>> producersExtractor = verifier.getExtractorForPrefix("producers = ");
+        if(producersExtractor.getData() != null) {
+            rtoken.setProducers(
+                    producersExtractor.getData()
+                            .stream()
+                            .map(p -> ByteBuffer.wrap(p.getBytes()))
+                            .collect(Collectors.toList())
+            );
+        }
         return rtoken;
     }
 
@@ -165,6 +180,13 @@ public class MacaroonsPlugin extends AbstractWarp10Plugin implements Authenticat
         if (common.appName != null) {
             wtoken.setAppName(common.appName);
         }
+
+
+        CaveatDataExtractor<String> producerExtractor = verifier.getExtractorForPrefix("producer = ");
+        if(producerExtractor.getData() != null) {
+            wtoken.setProducerId(producerExtractor.getData().getBytes());
+        }
+
 
         return wtoken;
     }
