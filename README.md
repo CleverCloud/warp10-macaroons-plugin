@@ -5,7 +5,9 @@ it allows you to directly use macaroons.
 
 # Install
 
-TODO
+TODO (Waiting for the warp10 plugin model to be released). But shortly, compile this project with gradle shadowjar, put the jar on the warp10 classpath, and add the plugin: warp10.plugins = com.clevercloud.warp10.plugins.macaroons.MacaroonsPlugin
+ There is a eay way to test your macaroon with the warpScript AUTHINFO keywork, but it's not made to do WRITE&READ token, as mention here https://github.com/cityzendata/warp10-platform/pull/274
+ 
 
 # Macaroon format
 

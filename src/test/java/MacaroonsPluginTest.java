@@ -272,6 +272,38 @@ public class MacaroonsPluginTest {
         System.out.println(s);
     }
 
+    private void printTestMacaroons(){
+        String location = "http://localhost:8080/";
+        String identifier = "we used our secret key";
+        Macaroon macaroon = new MacaroonsBuilder(location, secretKey, identifier)
+                .add_first_party_caveat("time < 2019-01-01T00:00")
+                .add_first_party_caveat("label = host=127.0.0.1")
+                .add_first_party_caveat("label = name=john")
+                .add_first_party_caveat("label = surname=doe")
+                .add_first_party_caveat("attr = role=CEO")
+                .add_first_party_caveat("access = READ, WRITE")
+                .add_first_party_caveat("appname = application name")
+                .add_first_party_caveat("producers = a, b, c")
+                .add_first_party_caveat("producer = d")
+                .getMacaroon();
+        String serialized = macaroon.serialize();
+             System.out.println("🎂 Serialized: " + serialized);
+
+        Macaroon macaroon_1 = MacaroonsBuilder.deserialize(serialized);
+        String identifier2 = "we used our secret key";
+
+        Macaroon macaroon2 = new MacaroonsBuilder(macaroon_1)
+                .add_first_party_caveat("access = READ, GLO")
+                .add_first_party_caveat("label = surname=grosdada")
+                .add_first_party_caveat("attr = role=DBO")
+                .add_first_party_caveat("attr = new_attributes=some:data")
+
+                .getMacaroon();
+        String serialized2 = macaroon2.serialize();
+               System.out.println("🍰 Serialized: " + serialized2);
+
+    }
+
     private void init(String file) throws IOException {
         /*try {
 
@@ -296,12 +328,15 @@ public class MacaroonsPluginTest {
         if (args.length < 1) {
             System.out.println("the first argument need to be a warp10.conf file path");
         }
-
-
         MacaroonsPluginTest mpt = new MacaroonsPluginTest();
-        mpt.init(args[0]);
-        mpt.testSomeLibraryMethod1();
-        mpt.testSomeLibraryMethod2();
+
+        if(args.length > 1){
+            mpt.printTestMacaroons();
+        }else {
+            mpt.init(args[0]);
+            mpt.testSomeLibraryMethod1();
+            mpt.testSomeLibraryMethod2();
+        }
     }
 
 
