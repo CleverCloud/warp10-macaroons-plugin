@@ -56,6 +56,7 @@ TODO
     signature 3f1fd7d14bf9b902f69fdaa0c98879c0bb1b174e70b572527aefea524c33b352
 ```
 
+This plugin do not use macaroon identifier and location, because nothing to map easily to a warp10 token. You can use it on your management.
 
 
 # Plugin configuration
